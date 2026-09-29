@@ -1,0 +1,25 @@
+Saved +     0 / total 200,000 per condition/seed | collection 0.00s, control planning 0.17s
+Saved + 5,000 / total 205,000 per condition/seed | collection 2.93s, control planning 0.31s
+Saved +10,000 / total 210,000 per condition/seed | collection 5.43s, control planning 0.43s
+Saved +15,000 / total 215,000 per condition/seed | collection 8.48s, control planning 0.57s
+Saved +20,000 / total 220,000 per condition/seed | collection 11.29s, control planning 0.69s
+Saved +25,000 / total 225,000 per condition/seed | collection 14.42s, control planning 0.86s
+Saved +30,000 / total 230,000 per condition/seed | collection 17.80s, control planning 1.04s
+Saved +35,000 / total 235,000 per condition/seed | collection 20.86s, control planning 1.19s
+Saved +40,000 / total 240,000 per condition/seed | collection 25.13s, control planning 1.38s
+Saved +45,000 / total 245,000 per condition/seed | collection 29.50s, control planning 1.59s
+Saved +50,000 / total 250,000 per condition/seed | collection 35.24s, control planning 1.84s
+Frozen evaluation: A: Q-controlled / Unpenalized
+Frozen evaluation: A: Q-controlled / Count-penalized
+Frozen evaluation: B: model-controlled / Unpenalized
+Frozen evaluation: B: model-controlled / Count-penalized
+Frozen evaluation: C: penalty-controlled / Unpenalized
+Frozen evaluation: C: penalty-controlled / Count-penalized
+PRIMARY: {"value_difference": {"mean": 8.887058576761305, "seed_sd": 11.026814427205322, "sem": 1.1026814427205323, "ci95": [6.725802949029061, 11.048314204493549], "minimum": -1.336975382416938, "maximum": 51.09454031037712, "quantiles_10_50_90": [0.0, 5.6216971216288485, 22.220197280256336]}, "improved": 67, "worsened": 1, "tied": 32}
+A: Q-controlled / Unpenalized true value 81.10915490830828 p10 68.0033020198242 >=90% oracle 63 prediction error 22.457525105324134
+A: Q-controlled / Count-penalized true value 82.7009936203015 p10 76.54012966662734 >=90% oracle 62 prediction error 7.034474061732385
+B: model-controlled / Unpenalized true value 89.99621348506956 p10 88.88652391766354 >=90% oracle 100 prediction error 0.03203627720748841
+B: model-controlled / Count-penalized true value 89.95610422359707 p10 88.88652391766354 >=90% oracle 100 prediction error 0.06766134130102046
+C: penalty-controlled / Unpenalized true value 84.0759534303344 p10 67.68975235918724 >=90% oracle 77 prediction error 9.652741644310584
+C: penalty-controlled / Count-penalized true value 86.40225390161172 p10 77.25823132646968 >=90% oracle 80 prediction error 0.013508695886896191
+Runtime: {'collection_seconds': 35.2431649856735, 'control_planning_seconds': 1.8361709213349968, 'extraction_seconds': 1.5676316960016266, 'exact_evaluation_seconds': 3.1179278410272673, 'frozen_evaluation_invocation_seconds': 9.18892402795609, 'completion_invocation_seconds': 65.23136837303173}

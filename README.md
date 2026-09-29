@@ -10,9 +10,19 @@ plans with a **supplied, exact model**. Experiment 2 learns action values from
 observed transitions using **Q-learning**, a preview of Section 6.5, in the same world.
 Experiment 3 estimates a **transition model from those same observations** and
 plans with it, a Chapter 4 preview. Experiment 4 keeps that model fixed and
-penalizes actions supported by fewer observations during planning.
+penalizes actions supported by fewer observations during planning. Experiment 5
+lets model-planned policies collect new experience and update their own models.
 
-**Latest result, experiment 4:** a fixed count penalty raises mean final true
+**Latest result, experiment 5:** after **50,000 additional transitions** from
+the same learned histories, model-controlled collection produces better data
+for unpenalized planning than continued Q-controlled collection: final true
+value **90.00 versus 81.11**, paired gain **8.89 [6.73, 11.05]**. Both use
+**250,000 total transitions**. All 100 model-controlled seeds reach 90% of the
+oracle. Seed 0 corrects its apparent rewarding loop through new observations;
+Q-controlled collection leaves that particular belief unchanged.
+[Jump to model-guided collection](#experiment-5-can-a-world-model-improve-through-its-own-actions).
+
+**Experiment 4 result:** a fixed count penalty raises mean final true
 value from **78.07 to 81.55**, paired gain **3.48 [0.91, 6.05]**, and reduces
 mean absolute prediction error from **27.22 to 7.40**. The lower tail improves,
 but **40 seeds worsen** relative to unpenalized planning. Seed 0 avoids an
@@ -43,6 +53,7 @@ learning helps substantially, but does not reliably recover the optimal policy.
 | Section 6.5 preview, experiment 2 | Q-learning from sampled transitions; the exact model is reserved for evaluation. |
 | Chapter 3 dynamics + Chapter 4 preview, experiment 3 | Empirical transition/reward estimates from Q's observations; policy iteration (§4.3) in that learned model. Q-learning remains a §6.5 preview. |
 | Chapter 3 rewards, policies, and values + Chapter 4 preview, experiment 4 | Fixed count penalties change policy selection; separate internal planning scores, original-reward predictions, and true returns. |
+| Chapter 3 framework + Chapters 4 and 8 previews, experiment 5 | Planned policies collect observations, update empirical models, and replan; collection and final planning rules are compared separately. This is not Dyna-Q. |
 
 **Experiment 1 result:** myopic harvesting is optimal at discounts 0 and 0.5.
 At 0.9 the optimal policy changes which patch it harvests. At 0.99 it also
@@ -1185,6 +1196,397 @@ states, then apply the **same coefficient-1 penalty** and evaluate from `(4,4)`.
 The hypothesis is that broader state coverage will reduce both fictitious
 rewarding loops and avoidance of genuinely useful, sparsely observed actions.
 Fix that protocol before running; the proposed experiment has not been run.
+
+## Experiment 5: can a world model improve through its own actions?
+
+**Scientific question:** does model-guided experience collection improve
+subsequent planning compared with continuing Q-controlled collection? In
+experiments 3–4, a model could change a decision but could not influence the
+data it received. Here its policy acts in the world, receives new evidence,
+updates the empirical model, and plans again. This is our continuation
+experiment in the same unchanged world.
+
+### A common history, then three equal additional budgets
+
+Each of the **100 seeds** starts from its final experiment-3 Q table,
+$N(s,a,s')$, $N(s,a)$, and reward sums after **200,000 transitions**. We load
+`results/learned_world_model/collection.npz`; the original collection is **not
+repeated**. Independent copies create three conditions:
+
+| Collector | Exploitation action rule | What updates during new collection |
+| --- | --- | --- |
+| **A: Q-controlled** | Greedy in its current Q table | Original Q update with $\alpha=0.1$, plus its empirical counts and reward sums |
+| **B: model-controlled** | Policy planned from its own empirical dynamics and original empirical rewards | Its empirical counts/rewards; unpenalized replanning after each rollout |
+| **C: penalty-controlled** | Policy planned with the existing coefficient-1 count penalty | Its empirical counts/rewards; count-penalized replanning after each rollout |
+
+All use **$\gamma=0.99$, $\epsilon=0.1$ uniform action exploration**, and
+uniform greedy ties within absolute tolerance $10^{-10}$, with zero relative
+tolerance. Each receives **exactly 50,000 additional transitions** in 50
+rollouts of 1,000 steps from `(4,4)`: **250,000 total per condition per seed**.
+The experiment adds **15 million collection transitions** across all three
+conditions. B/C retain their copied historical Q tables but never use or
+update them; their observed model statistics determine their actions.
+
+B and C plan before the first new rollout and after every 1,000 transitions,
+holding the planned policy fixed within that rollout apart from epsilon
+exploration. C always subtracts $1/\sqrt{\max(N(s,a),1)}$ from the observed
+reward mean for planning; negative scores are not clipped. There is no tuning.
+Unknown empirical rows retain the documented **zero-reward self-loop**
+assumption. Models use only their own condition's and seed's observations.
+
+Fresh environment and action-selection RNG streams are derived from
+`SeedSequence([20260929, 5, seed, role])`, using roles 0 and 100. Within a
+seed, **all three conditions share the same draws**, applying them to their
+own stocks, regeneration probabilities, and action distributions. The action
+draw convention matches Q-learning: one uniform selects either the greedy
+mixture or a uniform action; an independent uniform selects exploration.
+These streams are distinct from both historical collection and frozen
+evaluation streams. Different seeds remain independent.
+
+Resets are collection boundaries. The final real successor is counted; Q
+bootstraps from that actual successor before resetting. A reset generates
+neither a transition nor a terminal event. Environmental rewards and the
+world's growth rules remain unchanged.
+
+### Hold the final planning rule fixed when comparing collectors
+
+At **0 and every 5,000 additional transitions**, each condition's dataset
+produces **both** an unpenalized and a count-penalized planned policy. This is
+a **three-collector × two-planner** comparison. No rule is selected per seed
+using true values. The main comparison was fixed in advance:
+
+> At **250,000 total transitions**, compare **B's dataset with A's dataset**,
+> using the **same unpenalized planning rule**, by exact true-environment
+> $V_\pi(4,4)$ at $\gamma=0.99$.
+
+Thus “A / unpenalized” below is a model-planned policy trained on the new
+Q-controlled dataset; it is **not** the continued Q table's greedy policy.
+This comparison asks how useful the collected data are for the same planner.
+Collector C and penalized-extraction comparisons are secondary.
+
+Collection and all checkpoint policy selection finish before true-model
+arrays are loaded for evaluation. The saved oracle supplies a reference only.
+At the common starting point, all three datasets reproduce the historical
+unpenalized value **78.0710** and penalized value **81.5510** exactly within
+numerical tolerance. Those are starting references, not the equal-budget
+competitors. The final endpoint is used even where an earlier checkpoint
+looks better.
+
+### Final values: model-controlled collection improves subsequent planning
+
+Intervals are **mean ± 1.96 SEM across the 100 training seeds**. Paired
+differences are formed within seed first. Threshold fractions use Wilson
+95% intervals, and 10th percentiles are descriptive sample quantiles.
+Checkpoint bands and secondary intervals are pointwise and unadjusted.
+
+| Collector / extraction rule | Mean true value (95% CI) | 10th percentile | Seeds ≥90% oracle (Wilson 95% CI) |
+| --- | ---: | ---: | ---: |
+| A / unpenalized | **81.1092 [78.9452, 83.2731]** | **68.0033** | **63/100 [53.22%, 71.82%]** |
+| A / penalized | **82.7010 [81.6269, 83.7751]** | **76.5401** | **62/100 [52.21%, 70.90%]** |
+| B / unpenalized | **89.9962 [89.8973, 90.0951]** | **88.8865** | **100/100 [96.30%, 100%]** |
+| B / penalized | **89.9561 [89.8508, 90.0615]** | **88.8865** | **100/100 [96.30%, 100%]** |
+| C / unpenalized | **84.0760 [81.8138, 86.3381]** | **67.6898** | **77/100 [67.85%, 84.16%]** |
+| C / penalized | **86.4023 [85.3706, 87.4339]** | **77.2582** | **80/100 [71.12%, 86.66%]** |
+
+The saved oracle is **90.2235**, and its 90% threshold is **81.2011**.
+The **primary paired B-minus-A gain is 8.8871 [6.7258, 11.0483]** with
+unpenalized extraction. **67 seeds improve, 1 worsens, and 32 tie** within
+$10^{-10}$ in true value. Individual differences range from **−1.3370 to
++51.0945**. The loss is retained. Tied values from `(4,4)` need not mean
+identical policies at all states.
+
+B's final unpenalized values range from **88.8865 to 90.2235**, versus
+**37.7920 to 90.2235** for A. All 100 B-derived policies cross the threshold
+in this sample; that does not guarantee success for every future seed or world.
+
+![Policy value versus additional experience, holding the extraction rule fixed](results/model_guided_collection/policy_values.png)
+
+Secondary comparisons also favor B's data. With penalized extraction, B − A
+is **7.2551 [6.2008, 8.3094]**. C improves over A by **2.9668 [0.9913, 4.9423]**
+under unpenalized extraction and **3.7013 [2.6558, 4.7467]** under penalized
+extraction, but trails B by **5.9203 [3.6737, 8.1669]** and **3.5539
+[2.5329, 4.5748]**, respectively.
+
+The final penalty's effect depends on the dataset. Penalized minus
+unpenalized value is **1.5918 [−0.4226, 3.6063]** for A, **−0.0401
+[−0.0850, 0.0048]** for B, and **2.3263 [0.4114, 4.2412]** for C. B's
+well-performing data leave little room for the penalty to help; C's data
+still support some poor unpenalized policies. We do not turn these six
+outcomes into a per-seed “best of both planners” result.
+
+![Collector-by-planner comparison and every primary paired final outcome](results/model_guided_collection/collector_by_planner.png)
+
+### Prediction accuracy is policy-dependent
+
+Every prediction below evaluates the selected policy with **original
+empirical rewards and empirical transitions**. Actual return uses the true
+environment. For penalized policies, the internal score uses penalized rewards
+and is saved separately; subtracting a penalty is not evidence of calibration.
+
+| Collector / extraction | Mean original-reward prediction | Mean prediction − actual (95% CI) | Mean absolute error |
+| --- | ---: | ---: | ---: |
+| A / unpenalized | **103.5667** | **22.4575 [17.1702, 27.7449]** | **23.2804** |
+| A / penalized | **89.7355** | **7.0345 [3.9204, 10.1485]** | **7.3737** |
+| B / unpenalized | **90.0282** | **0.0320 [−0.0634, 0.1275]** | **0.3838** |
+| B / penalized | **90.0238** | **0.0677 [−0.0176, 0.1529]** | **0.3596** |
+| C / unpenalized | **93.7287** | **9.6527 [4.9821, 14.3233]** | **10.3389** |
+| C / penalized | **86.4158** | **0.0135 [−0.0937, 0.1207]** | **0.4004** |
+
+For the primary unpenalized comparison, B − A in absolute prediction error
+is **−22.8967 [−28.0329, −17.7604]**. RMSE falls from **34.9969 to 0.4855**;
+B's mean absolute error is **0.3838 [0.3252, 0.4424]**. The small signed mean
+is therefore accompanied by small individual errors, not just cancellation.
+Nevertheless, these are predictions for selected policies from `(4,4)`, not
+a claim that all counterfactual actions are accurately modeled.
+
+Mean **internal penalized scores** are **79.9322** for A's data, **88.8827**
+for B's, and **84.9362** for C's. They differ from the original-reward predictions
+above. The accounting identity—prediction minus score equals the expected
+discounted sum of penalties—is checked at every checkpoint. C's penalized
+policy is accurately predicted on average while achieving lower actual value
+than B's policies: an accurate forecast need not imply a better decision.
+
+### Coverage: behavior determines what the model gets to learn
+
+We fixed thresholds of **fewer than 1, 10, and 100 observations** before
+running. These describe scarcity; they are not guarantees of model accuracy.
+Each dataset has 75 state-action rows:
+
+| Dataset | Mean unvisited rows | Mean rows with N < 10 (95% CI) | Mean rows with N < 100 |
+| --- | ---: | ---: | ---: |
+| Common 200,000-transition history | **5.20** | **22.59 [21.55, 23.63]** | **43.30** |
+| A after 50,000 additional | **4.37** | **19.97 [18.85, 21.09]** | **41.53** |
+| B after 50,000 additional | **1.05** | **6.81 [6.18, 7.44]** | **23.89** |
+| C after 50,000 additional | **2.68** | **12.48 [11.16, 13.80]** | **31.14** |
+
+Of the 50,000 new transitions, mean observations of rows that initially had
+**N < 10** are **27.09 [21.08, 33.10]** for A, **16,307.95 [14,328.59,
+18,287.31]** for B, and **5,999.44 [4,352.12, 7,646.76]** for C. The same
+epsilon does not imply the same coverage: a random action can only be taken
+in a state the current behavior reaches.
+
+B fills in many productive high-stock rows, but does not learn the entire
+world uniformly. For example, **rest at `(4,0)`** remains below ten observations
+in **77%** of B seeds, and **harvest B at `(4,0)`** in **71%**. Corresponding
+fractions are **83% / 85%** for A and **83% / 85%** for C. At `(3,4)`, by
+contrast, harvest B remains below ten observations in **29%** of A seeds,
+**0%** of B seeds, and **14%** of C seeds. Every count and per-state scarcity
+fraction is recoverable from the saved checkpoints.
+
+![Original-reward predictions and remaining sparsely observed state-action rows](results/model_guided_collection/predictions_and_coverage.png)
+
+These measurements support a feedback mechanism: the model's policy changes
+where it spends time; the new observations change the empirical probabilities;
+replanning then changes subsequent behavior. They do not isolate coverage as
+the only cause of the value gain. Which rows are sampled, their realized
+outcomes, and the evolving policy all change together.
+
+### New collection behavior versus frozen final behavior
+
+During all 50 new rollouts, updates and $\epsilon=0.1$ exploration remain
+active. Average each seed's rollouts first, then compute intervals over the
+100 seeds:
+
+| New collection measurement | A: Q-controlled | B: model-controlled | C: penalty-controlled |
+| --- | ---: | ---: | ---: |
+| Reward per decision (95% CI) | **0.6744 [0.6703, 0.6786]** | **0.8231 [0.8198, 0.8264]** | **0.7700 [0.7598, 0.7801]** |
+| Mean stock A (95% CI) | **0.2121 [0.1601, 0.2641]** | **2.6226 [2.5373, 2.7079]** | **1.4759 [1.2667, 1.6850]** |
+| Mean stock B (95% CI) | **3.2719 [3.2578, 3.2861]** | **3.3758 [3.3705, 3.3810]** | **3.3942 [3.3906, 3.3979]** |
+| Either patch depleted (95% CI) | **85.97% [83.15%, 88.78%]** | **8.81% [7.83%, 9.80%]** | **40.56% [34.05%, 47.07%]** |
+
+The model-controlled collector spends much more time with A still productive.
+Its last-five-rollout mean stock A is **2.7854**, compared with **0.2487** for
+A and **1.7942** for C. These training measurements are not the exact policy
+values in the primary table.
+
+For **each of the six final policies**, frozen evaluation uses **20 independent
+1,000-step trajectories per training seed**, all starting at `(4,4)`, with
+learning and epsilon exploration off and the established uniform tie rule.
+We reuse the established evaluation seed recipe, independent of new collection,
+and pair the regeneration and action uniforms across all six policies. This
+adds **12 million evaluation transitions**. The 20 trajectories are averaged
+within training seed before calculating uncertainty across seeds.
+
+| Frozen policy | Mean stock A (95% CI) | Mean stock B (95% CI) | Either depleted (95% CI) | 1,000-step harvested reward (95% CI) |
+| --- | ---: | ---: | ---: | ---: |
+| A / unpenalized | **2.6786 [2.5382, 2.8191]** | **3.0483 [2.9123, 3.1843]** | **2.20% [0.12%, 4.29%]** | **788.76 [764.62, 812.90]** |
+| A / penalized | **1.5203 [1.2863, 1.7543]** | **3.4256 [3.3888, 3.4624]** | **28.14% [19.75%, 36.52%]** | **802.07 [789.68, 814.46]** |
+| B / unpenalized | **3.1974 [3.1255, 3.2694]** | **3.4656 [3.4649, 3.4663]** | **0% [0%, 0%]** | **888.27 [886.28, 890.26]** |
+| B / penalized | **3.1682 [3.0915, 3.2449]** | **3.4656 [3.4649, 3.4663]** | **0% [0%, 0%]** | **887.59 [885.45, 889.73]** |
+| C / unpenalized | **2.9063 [2.7670, 3.0455]** | **3.1874 [3.0581, 3.3167]** | **3.42% [0.43%, 6.40%]** | **822.26 [797.16, 847.36]** |
+| C / penalized | **2.2213 [1.9732, 2.4693]** | **3.4655 [3.4644, 3.4667]** | **18.65% [11.30%, 25.99%]** | **844.59 [832.32, 856.87]** |
+
+For the primary B-minus-A comparison with unpenalized extraction, frozen
+harvest increases by **99.51 [75.46, 123.56]** reward, mean stock A by **0.5188
+[0.3707, 0.6669]**, and mean stock B by **0.4173 [0.2813, 0.5533]**. Either-patch
+depletion falls by **2.20 [0.12, 4.29] percentage points**. Stocks and depletion
+use pre-action states. All harvest rewards are environmental rewards, with no
+planning penalty subtracted.
+
+Zero observed depletion is a statement about these frozen evaluations, not
+a general guarantee. Per-patch depletion, rest, failed and successful harvests,
+and discounted trajectory returns are also saved. Normal mean intervals are
+left untruncated, so very rare outcomes can have a negative lower bound in the
+summary. During collection, epsilon actions can still damage stocks that a
+frozen policy preserves.
+
+![Resource behavior during new collection and under all six frozen final policies](results/model_guided_collection/collection_and_frozen_resources.png)
+
+### Seed 0: acting corrects the apparent rewarding loop, with a delay under caution
+
+The illustration stays fixed at **seed 0, state `(3,4)`, harvest B**. All three
+copies begin with **one observation**, which returned to `(3,4)`, so the
+empirical self-loop probability is **1.0**. The true probability **0.3568875**
+is used only as a later diagnostic. Initial collector probabilities of B at
+this state, including epsilon, are **3.33% for A**, **93.33% for B**, and
+**3.33% for C**.
+
+| Additional transitions | A: B visits / estimated loop probability | B: B visits / estimated loop probability | C: B visits / estimated loop probability |
+| --- | ---: | ---: | ---: |
+| 0 | **1 / 1.00000** | **1 / 1.00000** | **1 / 1.00000** |
+| 5,000 | **1 / 1.00000** | **819 / 0.34799** | **1 / 1.00000** |
+| 10,000 | **1 / 1.00000** | **1,925 / 0.35532** | **621 / 0.37037** |
+| 50,000 | **1 / 1.00000** | **10,511 / 0.35696** | **9,019 / 0.35869** |
+
+A collects no additional example of this action in this state, so the
+incorrect row survives despite 50,000 new transitions elsewhere. B executes
+the initially attractive action and observes that the promised loop frequently
+fails to occur. Its model learns the stochastic outcome frequencies instead
+of treating the original sample as certainty. B continues favoring this action
+after its prediction is corrected; an overoptimistic justification did not
+make the action itself bad.
+
+C's penalty initially favors harvest A at `(3,4)` and its B-action probability
+stays at the 3.33% exploration floor through the +5,000 checkpoint. By +10,000,
+it favors B with probability 93.33% and has begun correcting the belief. The
+5,000-step snapshots bracket this change; they do not locate the exact
+1,000-step replanning event. At the final checkpoint, both B- and C-derived
+seed-0 datasets yield **90.2235** under either extraction rule. A's dataset
+yields **85.1536** unpenalized and **76.7914** penalized.
+
+![Seed-0 observation counts, self-loop estimates, collector actions, and final control maps](results/model_guided_collection/seed_0_beliefs_and_actions.png)
+
+The preselected example therefore shows **delayed evidence gathering under
+the penalty, not permanent avoidance**. Across the population, C visits fewer
+initially scarce rows and leaves more poorly sampled regions than B. This is
+consistent with caution slowing useful learning here, but the illustration
+does not prove that one loop explains every seed's outcome. B's final maps
+also need not match the oracle at poorly visited states outside its productive
+region.
+
+### What learned, chapter connections, and limits
+
+The model does not learn by imagining more transitions from its current
+belief. It learns from **new actual successors and rewards**: those increment
+its counts and change the estimated transition probabilities and reward means.
+Planning reuses those estimates to choose actions; those actions then affect
+which observations become available. In this fixed world, letting the
+unpenalized model guide interaction produced a dataset from which the **same
+final planning rule** obtained higher value than from continued Q interaction.
+
+**Chapter 3** supplies the MDP framework: actions change state distributions,
+rewards define returns, and a policy determines its value function.
+**Policy iteration previews Chapter 4**. Online interaction between acting,
+model learning, and planning previews **Chapter 8, Planning and Learning with
+Tabular Methods** ([Sutton and Barto, second-edition author draft](https://www.incompleteideas.net/book/bookdraft2018mar21.pdf)).
+This implementation is **not a reproduction of Dyna-Q**: B/C solve their
+empirical MDP by policy iteration at rollout boundaries, rather than making
+simulated Q-learning updates. A continues the earlier §6.5 Q-learning preview.
+
+The primary result supports model-guided **collection** in this experiment,
+not a general ranking of model-based and model-free algorithms. It does not
+compare equal computation: B/C plan repeatedly while A uses incremental Q
+updates. All conditions inherit the same Q-generated history; the world is
+small, stationary, fully observed, and repeatedly restarted for collection.
+We did not test learning from scratch, changing worlds, other penalties,
+other replanning schedules, or larger state spaces. The one primary loss,
+poor secondary policies, and nonmonotonic checkpoint curves are retained.
+
+### Saved checkpoints, runtime, and reproduction
+
+Measured on the same Python 3.10.12 / NumPy 1.26.4 / Matplotlib 3.10.9 WSL CPU
+environment with one OpenBLAS thread:
+
+| Phase | Wall time |
+| --- | ---: |
+| New collection, Q updates, count/reward accumulation, and rollout measurements | **35.243 s** |
+| B/C control-policy planning before collection and after each rollout | **1.836 s** |
+| Both-rule extraction and reward-accounting checks at the 11 checkpoints | **1.568 s** |
+| Exact evaluation, historical-reference checks, and seed-0 diagnostics | **3.118 s** |
+| Frozen evaluation of the six final policies | **9.189 s** |
+| Complete experiment invocation, including saving and initial plotting | **65.231 s** |
+
+Collection time excludes planning and checkpoint I/O. The largest checkpoint
+optimality residual was **$5.68\times10^{-14}$**. These are implementation-
+and machine-specific times. Equal environmental experience does not make the
+computational or storage costs equal.
+
+```bash
+source .venv/bin/activate
+python check_model_guided_collection.py
+OPENBLAS_NUM_THREADS=1 python run_model_guided_collection.py
+# Regenerate the five figures from saved results; no collection or evaluation:
+python run_model_guided_collection.py --plot-only
+# Intentional reproduction from the old 200,000-transition histories:
+OPENBLAS_NUM_THREADS=1 python run_model_guided_collection.py --output results/model_guided_collection_repeat
+```
+
+The default command reuses completed outputs. If interrupted during collection,
+the same command resumes from the latest complete **5,000-additional-transition
+checkpoint**, after validating configuration and source/history hashes. Each
+checkpoint is written through an atomic file replacement and includes model
+statistics, Q copies, the next rollout's collector policies, RNG states,
+accumulated runtimes, and prior rollout metrics. Collection resumes at a reset
+boundary. Any unsaved tail after an interruption is deterministically repeated
+from the saved RNG state and is not counted twice. The original history is
+never replayed.
+
+The fixed experiment ran **once, without interruption or tuning**. Brief checks
+covered independent copied condition state, paired action-draw conventions,
+transition counting and the actual-successor Q bootstrap, and RNG restoration.
+Saved-data checks confirmed the common initial histories, exactly 250,000
+visits per condition/seed, unchanged B/C Q copies, fresh collection seed IDs,
+the within-seed frozen aggregation, and that resuming the completed checkpoint
+made **zero** further environment calls. The original world and all previously
+tracked source/results files, except this README, were preserved byte for byte.
+
+[results/model_guided_collection/](results/model_guided_collection/) contains
+about **13.5 MiB**:
+
+| File | Contents |
+| --- | --- |
+| `checkpoint_000000.npz` through `checkpoint_050000.npz` | Additional/total budgets, all sufficient statistics, Q copies, both extracted policies and predicted/internal values, collector greedy/epsilon policies, rollout measurements, RNG states, times, and planning diagnostics. |
+| `results.npz` | All checkpoint policies, true values, original-reward predictions, internal scores, visits, collector action probabilities, collection measurements, labels, and the saved oracle reference. |
+| `frozen_behavior.npz` | Six policies' per-trajectory outcomes, within-training-seed averages/curves, evaluation seed IDs, and seed-0 trajectory-0 full traces. |
+| `seed_0.json` | Checkpoint counts for harvest B at `(3,4)`, observed loops and estimated probabilities, all collector action probabilities, and predicted/actual values. |
+| `summary.json` | Primary and secondary paired comparisons, value quantiles, oracle-threshold fractions, prediction errors, coverage/poorly sampled rows, collection and frozen behavior. |
+| `manifest.json`, `run.log`, five PNGs | Fixed protocol, fresh collection seeds, source/history hashes, runtime, reproduction commands, progress, and figures. |
+
+Open archives with `numpy.load(path, allow_pickle=False)`. Checkpoint counts
+start with **collector × seed**, with successor counts ending in **state ×
+action × next state**. Result policies/values start with **checkpoint ×
+collector × planner × seed**. Collectors are `[A, B, C]`; planners are
+`[unpenalized, count-penalized]`. Frozen trajectory metrics use **collector ×
+planner × seed × trajectory × metric**; frozen curves use **collector ×
+planner × seed × bin × metric**. Collection measurements use **collector ×
+rollout × seed × metric**. Names and checkpoint budgets are saved explicitly.
+
+[model_guided_collection.py](model_guided_collection.py) handles independent
+continuations, action selection, planning, and resumable checkpoints;
+[run_model_guided_collection.py](run_model_guided_collection.py) performs the
+separate evaluation and summaries;
+[model_guided_figures.py](model_guided_figures.py) uses saved arrays only.
+The existing environment, Q update, model estimation, policy iteration,
+count penalty, statistics, and frozen-evaluation routines are reused.
+
+**One next task:** compare adaptive collector B with a collector that keeps
+its **initial experiment-3 unpenalized policy fixed** throughout the same
+50,000 additional transitions, retaining epsilon 0.1 and updating counts.
+Use the same paired fresh streams and final unpenalized extraction. This
+would test whether repeated replanning is needed, or whether that initial
+policy already visits enough useful states to explain most of the gain.
+The current result changes both behavior and its subsequent adaptation;
+this proposed ablation has not been run.
 
 ## Textbook connection
 
