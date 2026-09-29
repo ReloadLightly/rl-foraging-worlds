@@ -1,0 +1,66 @@
+{
+  "started_utc": "2026-09-29T03:08:07.573574+00:00",
+  "world": {
+    "capacity": 4,
+    "growth": [
+      0.3,
+      0.6
+    ],
+    "harvest_reward": [
+      1.0,
+      1.5
+    ],
+    "initial": [
+      4,
+      4
+    ]
+  },
+  "gammas": [
+    0.0,
+    0.5,
+    0.9,
+    0.99
+  ],
+  "config": {
+    "trajectories": 2000,
+    "steps": 1000,
+    "simulation_gamma": 0.99,
+    "bin_width": 20,
+    "trace_trajectory": 0,
+    "trace_plot_window": [
+      0,
+      120
+    ]
+  },
+  "master_seed": 20260929,
+  "seeds": {
+    "regeneration": 10885231728690395407,
+    "policies": {
+      "uniform random": 8903550075378792714,
+      "myopic": 5752493319573266690,
+      "planned gamma=0.99": 4651572764238353835
+    }
+  },
+  "python": "3.10.12",
+  "numpy": "1.26.4",
+  "matplotlib": "3.10.9",
+  "platform": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "tie_absolute_tolerance": 1e-10,
+  "tie_relative_tolerance": 0,
+  "tie_rule": "Uniform mixture over all numerical maximizers; includes empty-harvest/rest equivalences",
+  "event_order": "Observe stocks, choose action, harvest and reward, regenerate both patches independently",
+  "horizon": "Continuing MDP; 1000-step observation window is not an environmental terminal state",
+  "uncertainty": "Trajectory mean +/- 1.96 SEM; paired trajectory differences; pointwise, unadjusted",
+  "depletion": "Pre-action stock == 0; rest/failure fractions use all decisions as denominator",
+  "trace_selection": "Trajectory 0, first 120 steps, selected before inspecting outcomes",
+  "source_sha256": {
+    "foraging.py": "6dc15fec475d4d87e3dede5c9999b140ae999e003748153c3543515e86f2454d",
+    "run_experiment.py": "3bd684791c8a3bd35a7c163a09b62f20478efb8023e9da3288689ba9793b735d",
+    "figures.py": "aefe49932442b2580a731e653e2c26581ee1a9d95a0354c213a5462f2cf268b2",
+    "checks.py": "3c25af97ffc3e3dd0699cae70361c2330121c62875cc862ae6d6888185fe04af"
+  },
+  "planning_seconds": 0.10501970001496375,
+  "simulation_seconds": 1.6060847010230646,
+  "total_seconds": 5.1524560319958255,
+  "finished_utc": "2026-09-29T03:08:12.725799+00:00"
+}

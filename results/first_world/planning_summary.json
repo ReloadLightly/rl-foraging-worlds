@@ -1,0 +1,1381 @@
+{
+  "by_gamma": {
+    "0.0": {
+      "initial_values": {
+        "uniform random": 0.8333333333333333,
+        "myopic": 1.5,
+        "optimal at this gamma": 1.5
+      },
+      "advantage_by_state": [
+        {
+          "state": [
+            0,
+            0
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            0,
+            1
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            0,
+            2
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            0,
+            3
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            0,
+            4
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            1,
+            0
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            1,
+            1
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            1,
+            2
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            1,
+            3
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            1,
+            4
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            2,
+            0
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            2,
+            1
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            2,
+            2
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            2,
+            3
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            2,
+            4
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            3,
+            0
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            3,
+            1
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            3,
+            2
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            3,
+            3
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            3,
+            4
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            4,
+            0
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            4,
+            1
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            4,
+            2
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            4,
+            3
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            4,
+            4
+          ],
+          "advantage": 0.0
+        }
+      ],
+      "strict_rest_states": [],
+      "strict_rest_margins": [],
+      "changed_from_myopic_states": [],
+      "optimal_action_sets": [
+        [
+          "harvest A",
+          "harvest B",
+          "rest"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ]
+      ],
+      "iterations": 2,
+      "optimality_residual": 0.0
+    },
+    "0.5": {
+      "initial_values": {
+        "uniform random": 1.664439082547676,
+        "myopic": 2.9683827138713843,
+        "optimal at this gamma": 2.9683827138713843
+      },
+      "advantage_by_state": [
+        {
+          "state": [
+            0,
+            0
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            0,
+            1
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            0,
+            2
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            0,
+            3
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            0,
+            4
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            1,
+            0
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            1,
+            1
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            1,
+            2
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            1,
+            3
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            1,
+            4
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            2,
+            0
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            2,
+            1
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            2,
+            2
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            2,
+            3
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            2,
+            4
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            3,
+            0
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            3,
+            1
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            3,
+            2
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            3,
+            3
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            3,
+            4
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            4,
+            0
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            4,
+            1
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            4,
+            2
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            4,
+            3
+          ],
+          "advantage": 0.0
+        },
+        {
+          "state": [
+            4,
+            4
+          ],
+          "advantage": 0.0
+        }
+      ],
+      "strict_rest_states": [],
+      "strict_rest_margins": [],
+      "changed_from_myopic_states": [],
+      "optimal_action_sets": [
+        [
+          "harvest A",
+          "harvest B",
+          "rest"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B"
+        ]
+      ],
+      "iterations": 33,
+      "optimality_residual": 4.440892098500626e-16
+    },
+    "0.9": {
+      "initial_values": {
+        "uniform random": 7.233135215616808,
+        "myopic": 9.304066939178508,
+        "optimal at this gamma": 10.816360262182386
+      },
+      "advantage_by_state": [
+        {
+          "state": [
+            0,
+            0
+          ],
+          "advantage": 0.23796872891696252
+        },
+        {
+          "state": [
+            0,
+            1
+          ],
+          "advantage": 0.6772734916974508
+        },
+        {
+          "state": [
+            0,
+            2
+          ],
+          "advantage": 0.8416263901985577
+        },
+        {
+          "state": [
+            0,
+            3
+          ],
+          "advantage": 0.8381097297235929
+        },
+        {
+          "state": [
+            0,
+            4
+          ],
+          "advantage": 0.7010045432439806
+        },
+        {
+          "state": [
+            1,
+            0
+          ],
+          "advantage": 0.23796872891696275
+        },
+        {
+          "state": [
+            1,
+            1
+          ],
+          "advantage": 0.7232091099382081
+        },
+        {
+          "state": [
+            1,
+            2
+          ],
+          "advantage": 0.9388318400660074
+        },
+        {
+          "state": [
+            1,
+            3
+          ],
+          "advantage": 0.9946519434878711
+        },
+        {
+          "state": [
+            1,
+            4
+          ],
+          "advantage": 0.8462100196786206
+        },
+        {
+          "state": [
+            2,
+            0
+          ],
+          "advantage": 0.2408787233604901
+        },
+        {
+          "state": [
+            2,
+            1
+          ],
+          "advantage": 0.7733241846583159
+        },
+        {
+          "state": [
+            2,
+            2
+          ],
+          "advantage": 1.0432219308135844
+        },
+        {
+          "state": [
+            2,
+            3
+          ],
+          "advantage": 1.1370868539761405
+        },
+        {
+          "state": [
+            2,
+            4
+          ],
+          "advantage": 1.0045148504159602
+        },
+        {
+          "state": [
+            3,
+            0
+          ],
+          "advantage": 0.24689548875005052
+        },
+        {
+          "state": [
+            3,
+            1
+          ],
+          "advantage": 0.8308665566894708
+        },
+        {
+          "state": [
+            3,
+            2
+          ],
+          "advantage": 1.199894023719744
+        },
+        {
+          "state": [
+            3,
+            3
+          ],
+          "advantage": 1.3717680078585195
+        },
+        {
+          "state": [
+            3,
+            4
+          ],
+          "advantage": 1.2647984658433202
+        },
+        {
+          "state": [
+            4,
+            0
+          ],
+          "advantage": 0.25982780003336003
+        },
+        {
+          "state": [
+            4,
+            1
+          ],
+          "advantage": 1.1131207599324
+        },
+        {
+          "state": [
+            4,
+            2
+          ],
+          "advantage": 1.6421696659728786
+        },
+        {
+          "state": [
+            4,
+            3
+          ],
+          "advantage": 1.826372933181215
+        },
+        {
+          "state": [
+            4,
+            4
+          ],
+          "advantage": 1.5122933230038775
+        }
+      ],
+      "strict_rest_states": [],
+      "strict_rest_margins": [],
+      "changed_from_myopic_states": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          4,
+          3
+        ]
+      ],
+      "optimal_action_sets": [
+        [
+          "harvest A",
+          "harvest B",
+          "rest"
+        ],
+        [
+          "harvest A",
+          "rest"
+        ],
+        [
+          "harvest A",
+          "rest"
+        ],
+        [
+          "harvest A",
+          "rest"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ]
+      ],
+      "iterations": 230,
+      "optimality_residual": 1.7763568394002505e-15
+    },
+    "0.99": {
+      "initial_values": {
+        "uniform random": 34.290705284432356,
+        "myopic": 23.720591069261502,
+        "optimal at this gamma": 90.22349930008055
+      },
+      "advantage_by_state": [
+        {
+          "state": [
+            0,
+            0
+          ],
+          "advantage": 54.905565825646164
+        },
+        {
+          "state": [
+            0,
+            1
+          ],
+          "advantage": 62.478769430827455
+        },
+        {
+          "state": [
+            0,
+            2
+          ],
+          "advantage": 64.0408741854432
+        },
+        {
+          "state": [
+            0,
+            3
+          ],
+          "advantage": 64.03574482750203
+        },
+        {
+          "state": [
+            0,
+            4
+          ],
+          "advantage": 63.00114583302056
+        },
+        {
+          "state": [
+            1,
+            0
+          ],
+          "advantage": 58.26325878900336
+        },
+        {
+          "state": [
+            1,
+            1
+          ],
+          "advantage": 65.54683450248558
+        },
+        {
+          "state": [
+            1,
+            2
+          ],
+          "advantage": 66.98695442263595
+        },
+        {
+          "state": [
+            1,
+            3
+          ],
+          "advantage": 66.86506782797274
+        },
+        {
+          "state": [
+            1,
+            4
+          ],
+          "advantage": 65.68602857348012
+        },
+        {
+          "state": [
+            2,
+            0
+          ],
+          "advantage": 59.129182830824874
+        },
+        {
+          "state": [
+            2,
+            1
+          ],
+          "advantage": 66.18599864390092
+        },
+        {
+          "state": [
+            2,
+            2
+          ],
+          "advantage": 67.45447163588163
+        },
+        {
+          "state": [
+            2,
+            3
+          ],
+          "advantage": 67.22212234693924
+        },
+        {
+          "state": [
+            2,
+            4
+          ],
+          "advantage": 65.99668488705747
+        },
+        {
+          "state": [
+            3,
+            0
+          ],
+          "advantage": 59.2956984373335
+        },
+        {
+          "state": [
+            3,
+            1
+          ],
+          "advantage": 66.21548517640858
+        },
+        {
+          "state": [
+            3,
+            2
+          ],
+          "advantage": 67.42681231435552
+        },
+        {
+          "state": [
+            3,
+            3
+          ],
+          "advantage": 67.20786564471511
+        },
+        {
+          "state": [
+            3,
+            4
+          ],
+          "advantage": 66.15677156062459
+        },
+        {
+          "state": [
+            4,
+            0
+          ],
+          "advantage": 59.06493911057388
+        },
+        {
+          "state": [
+            4,
+            1
+          ],
+          "advantage": 66.29444333631164
+        },
+        {
+          "state": [
+            4,
+            2
+          ],
+          "advantage": 67.76545861946562
+        },
+        {
+          "state": [
+            4,
+            3
+          ],
+          "advantage": 67.75850925471819
+        },
+        {
+          "state": [
+            4,
+            4
+          ],
+          "advantage": 66.50290823081905
+        }
+      ],
+      "strict_rest_states": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "strict_rest_margins": [
+        3.1357832239936982,
+        1.7591085986896928,
+        0.5461947968476437,
+        0.7854238080579705,
+        0.7087731327760025,
+        0.5218996153904101,
+        0.26024585926725763,
+        0.18759315196373905,
+        0.0984941154835468
+      ],
+      "changed_from_myopic_states": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          4,
+          3
+        ]
+      ],
+      "optimal_action_sets": [
+        [
+          "harvest A",
+          "harvest B",
+          "rest"
+        ],
+        [
+          "harvest A",
+          "rest"
+        ],
+        [
+          "harvest A",
+          "rest"
+        ],
+        [
+          "harvest A",
+          "rest"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B",
+          "rest"
+        ],
+        [
+          "rest"
+        ],
+        [
+          "rest"
+        ],
+        [
+          "rest"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B",
+          "rest"
+        ],
+        [
+          "rest"
+        ],
+        [
+          "rest"
+        ],
+        [
+          "rest"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest B",
+          "rest"
+        ],
+        [
+          "rest"
+        ],
+        [
+          "rest"
+        ],
+        [
+          "rest"
+        ],
+        [
+          "harvest B"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest A"
+        ],
+        [
+          "harvest B"
+        ]
+      ],
+      "iterations": 2735,
+      "optimality_residual": 1.4210854715202004e-14
+    }
+  },
+  "changed_between_discounts": {
+    "0.0_to_0.5": [],
+    "0.5_to_0.9": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        3
+      ]
+    ],
+    "0.9_to_0.99": [
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        3,
+        3
+      ]
+    ]
+  }
+}
