@@ -1,0 +1,90 @@
+{
+  "seed": 0,
+  "state": [
+    3,
+    4
+  ],
+  "state_index": 19,
+  "action_names": [
+    "harvest A",
+    "harvest B",
+    "rest"
+  ],
+  "visit_counts": [
+    4,
+    1,
+    65
+  ],
+  "penalties": [
+    0.5,
+    1.0,
+    0.12403473458920847
+  ],
+  "empirical_rewards": [
+    1.0,
+    1.5,
+    0.0
+  ],
+  "planning_rewards": [
+    0.5,
+    0.5,
+    -0.12403473458920847
+  ],
+  "empirical_self_loop_probabilities": [
+    0.0,
+    1.0,
+    0.7384615384615385
+  ],
+  "true_self_loop_probabilities": [
+    0.165,
+    0.3568875,
+    0.7675000000000001
+  ],
+  "unpenalized_action_values": [
+    146.62674267100962,
+    149.99999999999986,
+    148.30677382319158
+  ],
+  "penalized_action_scores": [
+    73.79795408823578,
+    73.55997454735342,
+    73.45379122131851
+  ],
+  "policies": {
+    "Frozen Q": {
+      "action_probabilities": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "state_predicted_B": 62.94596560184469,
+      "state_actual_C": 62.64306575636906,
+      "initial_predicted_B": 65.3770337920526,
+      "initial_actual_C": 65.3646065734156
+    },
+    "Unpenalized model": {
+      "action_probabilities": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "state_predicted_B": 149.99999999999986,
+      "state_actual_C": 84.95817792744275,
+      "initial_predicted_B": 149.25373134328342,
+      "initial_actual_C": 85.15357067348968
+    },
+    "Count-penalized model": {
+      "action_probabilities": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "state_predicted_B": 75.56281052991753,
+      "state_actual_C": 75.21941560219454,
+      "initial_predicted_B": 79.55804267755589,
+      "initial_actual_C": 76.79137076431724
+    }
+  },
+  "penalized_state_score_A": 73.79795408823578,
+  "penalized_initial_score_A": 75.7979743827116
+}

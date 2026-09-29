@@ -1,0 +1,63 @@
+{
+  "config": {
+    "training_seeds": 100,
+    "final_checkpoint": 200000,
+    "gamma": 0.99,
+    "penalty_coefficient": 1.0,
+    "trajectories_per_seed": 20,
+    "evaluation_steps": 1000,
+    "evaluation_epsilon": 0.0,
+    "bin_width": 20,
+    "illustration_seed": 0,
+    "illustration_state": [
+      3,
+      4
+    ],
+    "illustration_trajectory": 0,
+    "illustration_steps": 120
+  },
+  "experiment_id": 4,
+  "started_utc": "2026-09-29T12:21:35.063332+00:00",
+  "input_sha256": {
+    "collection.npz": "d305b32a9175e3f37c323753d207ad656c682bc9adf519548ea6fa9c6c4f22af",
+    "results.npz": "ac908c431f1ad0687254a4ade367ecf21bebfc3352f732bf22da5a4b73d324ce",
+    "frozen_behavior.npz": "c43d6b61f653bc94dba0e98be4f9de8d9b782348a3fcc824947696a6c6f7889b",
+    "manifest.json": "0cb386a1b09cc63ea82bdd7d3bf73ac44e1588e2d06777b69b752dee316db702"
+  },
+  "source_sha256": {
+    "run_count_penalized_planning.py": "91c3e87a621c2acb6702986c7b027916dbaa760ef93d9ed017184fb3a91172fd",
+    "check_count_penalized_planning.py": "83f1bc64754ce7b2117630cf4072a9d2bb55de0f918947cb67134733e902ffa1",
+    "count_penalized_figures.py": "be905133146b073c5a55a5d3a0ae833be92635e5f17fc4da0860f0877c9a6a20",
+    "learned_world_model.py": "53bd06eaf20cd3b561009b61577dbb606ee0295b8fdf5f8269596b54de2f27f2",
+    "run_learned_world_model.py": "8bbcaeef1892a49b9a0e875409caff4f7d01ef063e21fddac06d0b48e7fa66be",
+    "foraging.py": "6dc15fec475d4d87e3dede5c9999b140ae999e003748153c3543515e86f2454d",
+    "q_learning.py": "3887157fb0e134ec47269eb6ec24ec3f842a5f4fd32c5696f4e4b3cd75ae9e59",
+    "run_q_learning.py": "8bc9f9eb484601de7e3bdb908bf8212aa1028b891dc5ec7dddc38dc58ebf6509",
+    "run_experiment.py": "3bd684791c8a3bd35a7c163a09b62f20478efb8023e9da3288689ba9793b735d",
+    "figures.py": "aefe49932442b2580a731e653e2c26581ee1a9d95a0354c213a5462f2cf268b2",
+    "q_learning_figures.py": "a966eada20781c818d04296db426040e2cb1c75b55d87f8aa20659fa4dfe330b"
+  },
+  "python": "3.10.12",
+  "numpy": "1.26.4",
+  "matplotlib": "3.10.9",
+  "platform": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "openblas_threads": "1",
+  "intervention": "planning_reward = empirical_reward - 1.0/sqrt(max(N(s,a),1)); no clipping; heuristic, not a confidence bound",
+  "information_boundary": "Select all policies from independent per-seed counts before loading true model; no collection, Q updates, or baseline planning/simulation",
+  "unknown_rows": "Same empirical zero-reward self-loop as Experiment 3; planning reward becomes -1",
+  "planner": "Existing policy iteration, gamma .99, uniform initialization/ties within 1e-10 absolute tolerance, rtol=0",
+  "evaluation_seed_recipe": "Reuse Experiment 3: SeedSequence([20260929,3,training_seed,trajectory,role]), roles 0 regeneration,100 actions",
+  "pairing": "Saved seed IDs; identical draw generation; seed-0 trace draws checked exactly; independent of collection",
+  "measurement": "Stocks/depletion before acting; aggregate 20 trajectories within each training seed before uncertainty",
+  "predictions": "A=penalized score; B=original empirical-reward return; C=true return; calibration uses B-C",
+  "total_new_collection_transitions": 0,
+  "total_new_frozen_evaluation_transitions": 2000000,
+  "reproduction": "OPENBLAS_NUM_THREADS=1 python run_count_penalized_planning.py --output results/count_penalized_planning_repeat",
+  "plotting": "python run_count_penalized_planning.py --plot-only",
+  "exact_evaluation_and_diagnostics_seconds": 0.10325988195836544,
+  "true_model_sha256": "e91ba1fdcfd8cabd43774a349c78fbb4aa0924fdc072e8d55cbc6917864071c7",
+  "frozen_evaluation_seconds": 1.2364301870111376,
+  "planning_and_original_reward_prediction_seconds": 0.329223841894418,
+  "completion_invocation_seconds": 6.708480239030905,
+  "finished_utc": "2026-09-29T12:21:41.771778+00:00"
+}

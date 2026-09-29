@@ -9,9 +9,18 @@ Here an action changes the resources available for future decisions. Experiment 
 plans with a **supplied, exact model**. Experiment 2 learns action values from
 observed transitions using **Q-learning**, a preview of Section 6.5, in the same world.
 Experiment 3 estimates a **transition model from those same observations** and
-plans with it, a Chapter 4 preview.
+plans with it, a Chapter 4 preview. Experiment 4 keeps that model fixed and
+penalizes actions supported by fewer observations during planning.
 
-**Latest result, experiment 3:** planning with an empirical model learned from
+**Latest result, experiment 4:** a fixed count penalty raises mean final true
+value from **78.07 to 81.55**, paired gain **3.48 [0.91, 6.05]**, and reduces
+mean absolute prediction error from **27.22 to 7.40**. The lower tail improves,
+but **40 seeds worsen** relative to unpenalized planning. Seed 0 avoids an
+illusory rewarding loop yet loses actual value: caution can reject useful
+actions too.
+[Jump to the caution experiment](#experiment-4-does-caution-about-scarce-evidence-improve-model-based-decisions).
+
+**Experiment 3 result:** planning with an empirical model learned from
 Q's own experience raises mean final policy value from **72.10 to 78.07**:
 paired gain **5.97 [3.12, 8.82]**. **51/100** planned policies reach 90% of the
 oracle, versus **7/100** Q policies. But planning hurts **28 seeds**, and its
@@ -33,6 +42,7 @@ learning helps substantially, but does not reliably recover the optimal policy.
 | Chapter 4 preview, experiment 1 | Exact policy evaluation and value iteration using a supplied model. |
 | Section 6.5 preview, experiment 2 | Q-learning from sampled transitions; the exact model is reserved for evaluation. |
 | Chapter 3 dynamics + Chapter 4 preview, experiment 3 | Empirical transition/reward estimates from Q's observations; policy iteration (§4.3) in that learned model. Q-learning remains a §6.5 preview. |
+| Chapter 3 rewards, policies, and values + Chapter 4 preview, experiment 4 | Fixed count penalties change policy selection; separate internal planning scores, original-reward predictions, and true returns. |
 
 **Experiment 1 result:** myopic harvesting is optimal at discounts 0 and 0.5.
 At 0.9 the optimal policy changes which patch it harvests. At 0.99 it also
@@ -881,6 +891,300 @@ comparison could fix a conservative planning rule in advance, then test its
 calibration and final true-policy value without collecting more experience.
 That follow-up has not been run; there is no guarantee that reducing optimism
 would improve value rather than make the planner too cautious.
+
+## Experiment 4: does caution about scarce evidence improve model-based decisions?
+
+**Hypothesis:** a fixed penalty for poorly observed actions will reduce reliance
+on scarce evidence, overprediction, and severe policy failures. It may also
+make the chosen policy excessively cautious. This is our heuristic extension
+of experiment 3, not a calibrated uncertainty method or a textbook result.
+
+We used **all 100 seeds and all 21 saved checkpoints** in
+`results/learned_world_model/collection.npz`. There was **no new collection,
+Q-learning, or baseline planning**. Each seed retains its own counts, empirical
+transition probabilities, and observed reward averages. No data are pooled.
+All existing code, environment rules, and result files remain unchanged.
+
+### One fixed intervention; three different values
+
+For planning only, with coefficient **1.0 fixed in reward units before running**:
+
+$$
+c(s,a)=\frac{1.0}{\sqrt{\max(N(s,a),1)}},\qquad
+\widetilde r(s,a)=\widehat r(s,a)-c(s,a).
+$$
+
+The coefficient was not tuned against the true model, and no alternatives
+were swept. This is a **count-based heuristic, not a calibrated confidence
+bound**. Negative planning rewards are retained without clipping. For an
+unknown row, the empirical model still assumes zero reward and a self-loop;
+its **planning** reward becomes −1. That default remains an assumption rather
+than observed knowledge. The actual world still pays 1 for a successful A
+harvest, 1.5 for a successful B harvest, and zero otherwise.
+
+We reuse policy iteration at **$\gamma=0.99$**, starting each model from a
+uniform policy and mixing ties within absolute tolerance $10^{-10}$, with
+zero relative tolerance. All policies are selected and saved **before loading
+the true model**. For each new policy $\pi$, we distinguish:
+
+| Quantity | Transitions | Immediate reward | Meaning |
+| --- | --- | --- | --- |
+| **A: internal planning score** | Empirical $\widehat P$ | Penalized $\widetilde r$ | Objective used to choose the policy |
+| **B: predicted harvest return** | Same empirical $\widehat P$ | Original empirical $\widehat r$ | What that model predicts the policy will earn |
+| **C: actual harvest return** | True $P$ | True environmental $r$ | Exact value of the frozen policy in the real experiment world |
+
+All three solve the corresponding Bellman policy-evaluation equation. **B − C
+is the prediction error.** A smaller A does not establish better prediction.
+For a fixed policy, B − A equals its expected discounted sum of penalties in
+the empirical model; we check that reward-accounting identity numerically.
+
+The estimated dynamics have **not become more accurate**. The intervention
+changes the policy selected from the same model. In Chapter 3 terms, dynamics,
+rewards, policies, and value functions are distinct: changing the reward used
+by a planner can change its policy, while the true reward and true dynamics
+stay fixed. **Policy iteration is a Chapter 4 preview (§4.3)**. Q-learning,
+the earlier §6.5 preview, is not run in this experiment.
+
+### Primary endpoint: improved average and lower tail, with losses retained
+
+The primary endpoint is **exact true-environment $V_\pi(4,4)$ at $\gamma=0.99$**
+using the fixed **200,000-transition checkpoint**. Q and unpenalized policies
+and values are loaded from experiment 3. The oracle is the saved experiment-1
+reference. Earlier checkpoints supply descriptive curves only; the slightly
+higher penalized mean at 190,000 transitions is not substituted for the endpoint.
+
+Mean intervals are **mean ± 1.96 SEM across 100 independent training seeds**.
+Differences are paired within training seed before calculating uncertainty.
+Fractions use Wilson 95% intervals; the 10th percentiles are descriptive sample
+quantiles. Intervals are pointwise and unadjusted for multiple comparisons.
+
+| Policy | Mean final true value (95% CI) | 10th percentile | Seeds ≥90% of oracle (Wilson 95% CI) |
+| --- | ---: | ---: | ---: |
+| Frozen Q | **72.1011 [70.8602, 73.3420]** | **64.0113** | **7/100 = 7% [3.43%, 13.75%]** |
+| Unpenalized model | **78.0710 [75.4439, 80.6980]** | **58.8210** | **51/100 = 51% [41.35%, 60.58%]** |
+| Count-penalized model | **81.5510 [80.3566, 82.7455]** | **75.7780** | **49/100 = 49% [39.42%, 58.65%]** |
+| Saved true-model oracle | **90.2235** | — | Reference, not a learned seed population |
+
+| Paired final comparison | Mean value difference (95% CI) | Improved / worsened / tied seeds |
+| --- | ---: | ---: |
+| Penalized − Q | **9.4499 [7.9959, 10.9040]** | **96 / 2 / 2** |
+| Penalized − unpenalized | **3.4800 [0.9065, 6.0536]** | **42 / 40 / 18** |
+
+Improved/worsened uses the established $10^{-10}$ absolute tolerance; “tied”
+means tied in evaluated value, not necessarily the same policy in every state.
+Penalized values range from **57.9985 to 90.2235**, compared with **37.3557 to
+90.2235** for unpenalized planning. Their seed SD falls from **13.4033 to 6.0941**.
+The worst penalized-minus-unpenalized difference is still **−14.8991**, while
+the largest gain is **+52.7030**. Relative to Q, the worst difference is
+**−15.2840**. No failing seed was removed.
+
+The higher mean and 10th percentile support improved decisions and a less
+severe lower tail at this setting. They do not imply uniform improvement:
+**40 policies lose value**, the median falls from **81.6812 to 80.9850**, and
+the fraction above the **81.2011** oracle threshold falls from 51% to 49%.
+That small fraction difference is descriptive, not evidence of a reliable
+population decline in threshold attainment.
+
+![Checkpoint values and paired final outcomes versus both baselines](results/count_penalized_planning/policy_values.png)
+
+### Prediction error falls without improving the transition estimates
+
+For the new policies, the final population means are:
+
+| Value from `(4,4)` | Mean (95% CI) |
+| --- | ---: |
+| A: penalized planning score | **78.6835 [77.8940, 79.4730]** |
+| B: original empirical-reward prediction | **88.6364 [85.6120, 91.6607]** |
+| C: true-environment return | **81.5510 [80.3566, 82.7455]** |
+
+The expected discounted penalty B − A averages **9.9529 [7.3515, 12.5543]**.
+It is an objective adjustment, not a correction to model probabilities.
+Calibration comparisons use each method's selected policy and its **original
+empirical rewards**:
+
+| Prediction diagnostic | Unpenalized policy | Count-penalized policy |
+| --- | ---: | ---: |
+| Mean B − C (95% CI) | **26.9751 [21.2637, 32.6864]** | **7.0854 [3.9365, 10.2342]** |
+| Mean absolute error (95% CI) | **27.2236 [21.5582, 32.8889]** | **7.3987 [4.2779, 10.5195]** |
+| Root mean squared error | **39.6013** | **17.4851** |
+| Seeds with overprediction | **93/100** | **79/100** |
+
+The paired change in B − C is **−19.8897 [−25.0111, −14.7683]**; the paired
+change in absolute error is **−19.8249 [−24.8747, −14.7751]**. Both support
+smaller prediction errors for the selected policies. Nevertheless, the largest
+remaining error is **78.2585**. The heuristic does not eliminate optimistic
+model exploitation or provide a guarantee that A bounds C.
+
+These are differences between expected values, not noisy single-trajectory
+returns. Better predictions for a changed set of policies do not imply that
+any transition or reward estimate was repaired. The policy can avoid parts
+of an inaccurate model while that model remains unchanged.
+
+![Original-reward predictions versus true values, with internal scores shown separately](results/count_penalized_planning/predictions_and_scores.png)
+
+### Frozen resources: more harvest, but more depletion than unpenalized planning
+
+Only the **new final policies** were simulated: **20 independent trajectories
+per training seed, 1,000 steps each**, from `(4,4)`, with learning and epsilon
+exploration off. Existing baseline outcomes were reused. The saved experiment-3
+seed IDs generate exactly the same regeneration and action-sampling uniforms;
+each policy applies them to its own stocks and action probabilities. The saved
+seed-0 trace uniforms also match exactly.
+
+We average each seed's 20 trajectories **before** estimating uncertainty
+across seeds. Stocks and depletion are measured before acting; depletion means
+stock zero. Harvested reward is the unchanged environmental reward, with no
+penalty subtracted. The following intervals use the same 100 training seeds
+as the primary comparison, not 2,000 independent learned-policy replicates.
+
+| Frozen outcome | Q: mean (95% CI) | Unpenalized: mean (95% CI) | Penalized: mean (95% CI) |
+| --- | ---: | ---: | ---: |
+| Mean stock A | **0.4510 [0.2668, 0.6353]** | **2.6442 [2.4917, 2.7966]** | **1.3830 [1.1324, 1.6336]** |
+| Mean stock B | **3.4170 [3.3910, 3.4430]** | **2.9158 [2.7637, 3.0679]** | **3.3975 [3.3447, 3.4503]** |
+| Either patch depleted | **76.77% [69.45%, 84.10%]** | **4.50% [1.37%, 7.62%]** | **37.22% [28.24%, 46.19%]** |
+| Both patches depleted | **0.68% [0.47%, 0.88%]** | **0% [0%, 0%]** | **0% [0%, 0%]** |
+| Harvested reward over 1,000 steps | **725.88 [718.08, 733.68]** | **755.83 [726.63, 785.04]** | **788.56 [774.58, 802.54]** |
+| Rest decisions | **27.13% [22.44%, 31.83%]** | **42.32% [40.24%, 44.39%]** | **33.88% [30.36%, 37.40%]** |
+
+Paired penalized-minus-unpenalized harvest improves by **32.73 [3.71, 61.74]**
+reward, and penalized-minus-Q by **62.68 [48.98, 76.38]**. However, relative
+to unpenalized planning, mean stock A falls by **1.2612 [0.9873, 1.5350]**,
+stock B rises by **0.4817 [0.3243, 0.6390]**, and either-patch depletion rises
+by **32.72 [23.23, 42.20] percentage points**. Penalized policies rest **8.43
+[4.68, 12.19] percentage points less** than unpenalized policies.
+
+Caution about scarce evidence does not mean resting more or conserving both
+patches. Here it produces a different resource tradeoff. These are secondary
+frozen-policy outcomes, not training behavior or separate optimization targets.
+Zero observed joint depletion is a finite-sample result, not a general guarantee.
+Per-patch depletion, harvest rates, failures, and all paired summaries are saved.
+
+![Frozen resources, depletion, and harvest using paired evaluation streams](results/count_penalized_planning/frozen_resources.png)
+
+### Seed 0 at `(3,4)`: avoiding the loop can also be too cautious
+
+Seed 0, state `(3,4)`, trajectory 0, and its first 120 decisions were selected
+before the experiment. This is an illustration, not a showcase chosen after
+seeing the outcomes. The final counts and planning rewards at that state are:
+
+| Action | Visits | Original empirical reward | Penalty | Planning reward | Empirical probability of returning to `(3,4)` |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Harvest A | **4** | 1.0 | 0.5000 | **0.5000** | 0 |
+| Harvest B | **1** | 1.5 | 1.0000 | **0.5000** | **1.0000** |
+| Rest | **65** | 0 | 0.1240 | **−0.1240** | 0.7385 |
+
+That one B observation returned to the same state with reward 1.5. The
+unpenalized model consequently imagines a perpetual rewarding self-loop worth
+**150**. Its true self-loop probability is only **0.3568875**, a separate
+evaluation diagnostic that is never supplied to either planner.
+
+The penalty leaves the false transition probability intact but reduces B's
+planning reward to **0.5**. Repeating B forever would now score **50**.
+The new policy instead chooses **harvest A**: its action scores, taking the
+indicated first action and then following the new policy, are **73.7980**
+for A, **73.5600** for B, and **73.4538** for rest. Thus it avoids acting on
+the apparent B loop at this state. These comparisons include future scores;
+they are not just a comparison of today's penalized rewards.
+
+| Seed-0 policy | Action at `(3,4)` | A: internal score from `(3,4)` | B: original-model predicted return | C: actual return from `(3,4)` |
+| --- | --- | ---: | ---: | ---: |
+| Frozen Q | Rest | — | **62.9460** | **62.6431** |
+| Unpenalized model | Harvest B | — | **150.0000** | **84.9582** |
+| Count-penalized model | Harvest A | **73.7980** | **75.5628** | **75.2194** |
+
+The Q row's B value is a diagnostic evaluation of that frozen policy in the
+empirical model, not the Q table's own estimate. All rows evaluate continuation
+under their respective complete policies, so they do not isolate the causal
+effect of changing just one action.
+
+From the primary start `(4,4)`, seed 0's penalized policy has **A = 75.7980**,
+**B = 79.5580**, and **C = 76.7914**. Its actual value falls from the unpenalized
+policy's **85.1536**, a loss of **8.3622**, despite much smaller prediction error.
+The true-model oracle still chooses B at `(3,4)`: the original model's reason
+for favoring B was inaccurate, but B can be a good real action. The penalty
+changes other states too; in the preselected trace, its policy consumes stock A
+down to zero while keeping B productive. The maps show fewer waits in states
+where the unpenalized policy preserved both stocks.
+
+This is concrete evidence of **excessive caution about evidence in some
+decisions**, alongside the population benefit in the lower tail. It is not
+evidence that a lower coefficient would be better, and no coefficient was
+changed after inspecting it.
+
+![Seed-0 policy maps, paired frozen trajectories, and the apparent-loop diagnostic](results/count_penalized_planning/seed_0_policies_and_mechanism.png)
+
+### Runtime and reproduction
+
+This single run used the same Python 3.10.12, NumPy 1.26.4, and Matplotlib
+3.10.9 WSL CPU environment, with one OpenBLAS thread. It took **0.329 s** for
+empirical reconstruction, penalty calculation, policy iteration, and original-
+reward predictions at all checkpoints; **0.103 s** for exact true evaluation
+and diagnostics; and **1.236 s** for the new frozen simulation and aggregation.
+The full invocation, including archive I/O, checks, and initial plotting, took
+**6.708 s**. There were **zero collection transitions** and **2 million new
+evaluation transitions**. Planning needed **1–10** policy-iteration rounds;
+the maximum optimality residual was **$4.97\times10^{-14}$**.
+
+```bash
+source .venv/bin/activate
+python check_count_penalized_planning.py
+OPENBLAS_NUM_THREADS=1 python run_count_penalized_planning.py
+# Plot saved data only, without planning or simulation:
+python run_count_penalized_planning.py --plot-only
+# Intentional reproduction; preserves the published outputs and still uses old counts:
+OPENBLAS_NUM_THREADS=1 python run_count_penalized_planning.py --output results/count_penalized_planning_repeat
+```
+
+The default invocation reuses completed results. Saved policy selection can
+also be reused after an interrupted evaluation if source/input hashes and
+configuration match. Brief synthetic checks verify the fixed count formula,
+unchanged original rewards, negative scores, and A/B accounting. Runtime checks
+confirm final empirical arrays exactly match experiment 3, and saved evaluation
+seeds and illustration draws match. No extended tests, parameter sweeps, or
+additional training experiments were run.
+
+[results/count_penalized_planning/](results/count_penalized_planning/) contains
+about **4.4 MiB**:
+
+| File | Contents |
+| --- | --- |
+| `planning.npz` | New checkpoint policies, A scores, B predictions, planning rounds/residuals/times, final counts and unchanged empirical model, penalties, planning rewards, and discounted penalty values. |
+| `results.npz` | All three checkpoint policies and true values, both model-policy B predictions, new A scores, saved oracle, and state/method labels. |
+| `frozen_behavior.npz` | Reused baseline outcomes plus new trajectory metrics, within-seed means/curves, evaluation seed IDs, and full preselected traces. |
+| `summary.json` | Seed-level uncertainty summaries, paired comparisons, improved/worsened/tied counts, lower quantiles, prediction error, and frozen behavior. |
+| `seed_0.json` | Counts, penalties, action scores/choices, A/B/C values, and empirical/true self-loop diagnostics for the fixed illustration. |
+| `manifest.json`, `run.log`, four PNGs | Fixed configuration, source/input hashes, runtime, reproduction instructions, progress, and figures. |
+
+Open with `numpy.load(path, allow_pickle=False)`. In `planning.npz`, policy
+and value arrays begin **checkpoint × seed**. In `results.npz`, policies and
+true values begin **checkpoint × method × seed**, with methods `[Q,
+unpenalized, penalized]`; prediction arrays use only `[unpenalized, penalized]`.
+Frozen metrics use **method × seed × trajectory × metric**, and curves use
+**method × seed × bin × metric**. Axes and metric names are saved. The original
+counts archive remains the source for all checkpoint models.
+
+Read [run_count_penalized_planning.py](run_count_penalized_planning.py) for the
+intervention and separate evaluation, and
+[count_penalized_figures.py](count_penalized_figures.py) for plots. Existing
+estimation, policy iteration, evaluation, statistics, and plotting utilities
+are reused without changing their source.
+
+### What this supports, and one next experiment
+
+The fixed penalty **improved mean decisions, raised the lower tail, and reduced
+prediction error**, while also sacrificing useful decisions for many seeds.
+It did not improve threshold attainment or ecological preservation uniformly.
+Count alone does not express which transition outcomes were observed or how
+uncertain the relevant long-term consequences are. The coefficient is tied to
+these reward units, and results are conditional on this small fixed world,
+the existing Q-controlled data distribution, and this one heuristic.
+
+**Next experiment:** at the same 200,000-transition budget, compare the existing
+`(4,4)` collection starts with a fixed schedule cycling through all 25 starting
+states, then apply the **same coefficient-1 penalty** and evaluate from `(4,4)`.
+The hypothesis is that broader state coverage will reduce both fictitious
+rewarding loops and avoidance of genuinely useful, sparsely observed actions.
+Fix that protocol before running; the proposed experiment has not been run.
 
 ## Textbook connection
 
