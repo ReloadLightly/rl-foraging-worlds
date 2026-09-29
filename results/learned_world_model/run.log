@@ -1,0 +1,46 @@
+Collected       0/seed | 0.00 s
+Collected  10,000/seed | 1.55 s
+Collected  20,000/seed | 2.94 s
+Collected  30,000/seed | 4.52 s
+Collected  40,000/seed | 5.76 s
+Collected  50,000/seed | 7.09 s
+Collected  60,000/seed | 8.39 s
+Collected  70,000/seed | 9.81 s
+Collected  80,000/seed | 11.25 s
+Collected  90,000/seed | 12.55 s
+Collected 100,000/seed | 13.87 s
+Collected 110,000/seed | 15.39 s
+Collected 120,000/seed | 16.83 s
+Collected 130,000/seed | 18.22 s
+Collected 140,000/seed | 19.70 s
+Collected 150,000/seed | 21.16 s
+Collected 160,000/seed | 22.66 s
+Collected 170,000/seed | 24.11 s
+Collected 180,000/seed | 25.56 s
+Collected 190,000/seed | 26.92 s
+Collected 200,000/seed | 28.25 s
+Replay comparison: {"checkpoint_q_max_abs_difference": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "checkpoint_visit_max_abs_difference": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "all_checkpoint_q_tables_bitwise_equal": true, "all_checkpoint_visit_counts_equal": true, "final_rng_states_equal": true, "final_q_max_abs_difference": 0.0, "final_visit_max_abs_difference": 0}
+Planned       0/seed | true V: Q 34.2907, model 34.2907 | predicted 0.0000
+Planned  10,000/seed | true V: Q 41.2569, model 62.4779 | predicted 106.5621
+Planned  20,000/seed | true V: Q 41.4727, model 64.8339 | predicted 116.7382
+Planned  30,000/seed | true V: Q 44.5621, model 65.4890 | predicted 120.0424
+Planned  40,000/seed | true V: Q 49.3204, model 67.7324 | predicted 119.6857
+Planned  50,000/seed | true V: Q 53.0982, model 69.1467 | predicted 117.3905
+Planned  60,000/seed | true V: Q 56.8963, model 68.4748 | predicted 117.7602
+Planned  70,000/seed | true V: Q 60.3655, model 72.0915 | predicted 115.9444
+Planned  80,000/seed | true V: Q 63.5399, model 74.1477 | predicted 114.5018
+Planned  90,000/seed | true V: Q 66.0049, model 74.7543 | predicted 112.6202
+Planned 100,000/seed | true V: Q 66.8187, model 74.6534 | predicted 109.5143
+Planned 110,000/seed | true V: Q 68.6140, model 74.8816 | predicted 109.9120
+Planned 120,000/seed | true V: Q 69.2135, model 75.0694 | predicted 108.3118
+Planned 130,000/seed | true V: Q 69.2279, model 74.6878 | predicted 109.1180
+Planned 140,000/seed | true V: Q 70.2810, model 75.4278 | predicted 109.0811
+Planned 150,000/seed | true V: Q 70.3977, model 76.5100 | predicted 107.5790
+Planned 160,000/seed | true V: Q 71.1978, model 76.5156 | predicted 106.2418
+Planned 170,000/seed | true V: Q 71.2930, model 77.0895 | predicted 105.4592
+Planned 180,000/seed | true V: Q 71.3197, model 78.0946 | predicted 104.9186
+Planned 190,000/seed | true V: Q 71.1165, model 77.8242 | predicted 105.3742
+Planned 200,000/seed | true V: Q 72.1011, model 78.0710 | predicted 105.0460
+Primary paired model-minus-Q: {'mean': 5.969898245849447, 'seed_sd': 14.554321788030606, 'sem': 1.4554321788030606, 'ci95': [3.1172511753954484, 8.822545316303446], 'minimum': -35.99292323759206, 'maximum': 30.092753833157367, 'quantiles_10_50_90': [-14.392082428018282, 9.74355765367213, 22.826969045877888]}
+Prediction minus actual: {'mean': 26.97505306370171, 'seed_sd': 29.13933359189231, 'sem': 2.913933359189231, 'ci95': [21.26374367969082, 32.686362447712604], 'minimum': -5.02167326729257, 'maximum': 110.4453057413356, 'quantiles_10_50_90': [1.3622026208926798, 15.970807711653514, 73.8827815987914]}
+Runtime: {'frozen_simulation_seconds': 1.8770891929743811, 'collection_seconds': 28.253078593173996, 'planning_seconds': 0.2258016321575269, 'final_checkpoint_planning_seconds': 0.010779996984638274, 'exact_evaluation_seconds': 0.04150762688368559, 'completion_invocation_seconds': 35.3083656639792}

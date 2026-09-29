@@ -6,10 +6,20 @@ This small NumPy project explores Sutton and Barto, second edition, **Chapter 3:
 Finite Markov Decision Processes**. It follows our
 [Chapter 2 bandit experiments](https://github.com/ReloadLightly/rl-changing-worlds).
 Here an action changes the resources available for future decisions. Experiment 1
-plans with a **supplied, exact model**. Experiment 2 now learns action values from
+plans with a **supplied, exact model**. Experiment 2 learns action values from
 observed transitions using **Q-learning**, a preview of Section 6.5, in the same world.
+Experiment 3 estimates a **transition model from those same observations** and
+plans with it, a Chapter 4 preview.
 
-**Latest result:** after 200,000 transitions per seed, Q-learning with training
+**Latest result, experiment 3:** planning with an empirical model learned from
+Q's own experience raises mean final policy value from **72.10 to 78.07**:
+paired gain **5.97 [3.12, 8.82]**. **51/100** planned policies reach 90% of the
+oracle, versus **7/100** Q policies. But planning hurts **28 seeds**, and its
+models overpredict value by **26.98** on average. More useful policies do not
+necessarily mean accurate imagined futures.
+[Jump to the learned-model experiment](#experiment-3-same-experience-learned-world-model).
+
+**Experiment 2 result:** after 200,000 transitions per seed, Q-learning with training
 discount 0.99 achieves mean frozen-policy value **72.10 [70.86, 73.34]**, versus
 **25.58 [25.28, 25.88]** with training discount 0. Both policies are evaluated at
 discount 0.99. Only **7/100** long-horizon seeds reach 90% of the oracle value:
@@ -22,6 +32,7 @@ learning helps substantially, but does not reliably recover the optimal policy.
 | Chapter 3, this world | Observed states, action-dependent transitions, continuing discounted returns, and Bellman equations. |
 | Chapter 4 preview, experiment 1 | Exact policy evaluation and value iteration using a supplied model. |
 | Section 6.5 preview, experiment 2 | Q-learning from sampled transitions; the exact model is reserved for evaluation. |
+| Chapter 3 dynamics + Chapter 4 preview, experiment 3 | Empirical transition/reward estimates from Q's observations; policy iteration (§4.3) in that learned model. Q-learning remains a §6.5 preview. |
 
 **Experiment 1 result:** myopic harvesting is optimal at discounts 0 and 0.5.
 At 0.9 the optimal policy changes which patch it harvests. At 0.99 it also
@@ -602,6 +613,274 @@ also checked. The experiment was run once, with no rerun of experiment 1.
 training improve the final policy at the same transition budget? A future
 matched comparison could vary collection starting states while holding the
 world, update rule, and evaluation from `(4,4)` fixed. That study has not been run.
+
+## Experiment 3: same experience, learned world model
+
+**Can planning with an empirical model learned from the Q-learner's own
+observations produce a better policy than its learned Q table?** Our hypothesis
+was that estimating dynamics and then planning could extract more value from
+the fixed data. This is our extension, not a textbook reproduction. The world,
+completed experiments, and all previous result files remain unchanged.
+
+### A Q table and a transition model remember different things
+
+A **Q table** estimates how much discounted reward an action is worth in a
+state. The Q-learner updates that estimate from one observed reward and the
+current estimated value of its actual successor. It does not retain a table
+of possible successors and their probabilities.
+
+A **learned transition model** instead remembers what happened: how often
+each action in each state led to each successor, and the rewards received.
+For every seed separately, we accumulate $N(s,a,s')$, $N(s,a)$, and reward
+sums. For visited rows,
+
+$$
+\widehat P(s'\mid s,a)=\frac{N(s,a,s')}{N(s,a)},\qquad
+\widehat r(s,a)=\frac{\sum_{\text{observations of }(s,a)}R_{t+1}}{N(s,a)}.
+$$
+
+The planner can then revisit the estimated consequences without taking more
+environmental actions. It uses **policy iteration**: evaluate a policy in its
+learned model, improve it using $\widehat r+0.99\widehat P V$, and repeat until
+the policy is unchanged. Each checkpoint starts with a uniform policy; ties
+mix uniformly within absolute tolerance $10^{-10}$, with zero relative
+tolerance. The largest observed optimality residual was **$8.53\times10^{-14}$**.
+Solving the estimated model accurately does not make the estimates accurate.
+
+An **unvisited** row is explicitly marked unknown and assigned **zero reward
+and a self-loop**. This is an assumption, not knowledge about that action.
+There is no smoothing, uncertainty penalty, or borrowing between seeds or
+neighboring states. The planner receives no regeneration parameters, true
+transition probabilities, counterfactual rewards, oracle values, or Q table.
+The state/action labels and observed transitions suffice to construct its model.
+
+This connects **Chapter 3 dynamics** to discounted **returns and value
+functions**: $\widehat P$ and $\widehat r$ estimate the one-step world;
+$V_\pi$ describes the accumulated consequences of a policy. Planning here is
+explicitly a **Chapter 4 preview, §4.3 policy iteration**; the collector's
+Q-learning remains a **§6.5 preview**. See the
+[second-edition chapter outline](https://mitpress.ublish.com/book/reinforcement-learning-an-introduction-2).
+
+### Matched collection, fixed endpoint
+
+We replayed **only** the original long-horizon collection: **100 seeds,
+200,000 transitions per seed, $\gamma_{train}=0.99$, $\alpha=0.1$,
+$\epsilon=0.1$, zero initial Q**, and 200 collection rollouts of 1,000 steps
+from `(4,4)`. The original environment and action-selection seeds, draw shapes,
+and Q update order are reused. This adds the missing transition counts; it is
+not another baseline comparison or a repeat of the discount-zero experiment.
+
+**Q alone controls collection.** The complete observation-count archive is
+saved before planning begins. Every last real transition in a rollout is
+counted and bootstrapped from its actual successor. Restarting collection
+creates **no observed transition**, reward, or terminal event.
+
+The replay's Q tables and visit counts match the baseline **exactly at all
+21 checkpoints**, including the final checkpoint: maximum absolute differences
+are both **zero**. Final environment/action RNG states also match. These checks
+support replaying the original experience; the old archives do not contain a
+transition-by-transition record for a direct trace comparison.
+
+At zero experience and every **10,000 transitions**, each seed's model is
+estimated independently and planned at $\gamma=0.99$. Frozen Q and planned
+policies are evaluated in the **true environment** by the existing Bellman
+linear-solve calculation. True-model arrays are loaded only in this separate
+evaluation stage and never enter either learner. The oracle is the saved
+experiment-1 reference; it was not replanned or simulated again.
+
+The primary outcome was fixed at **200,000 transitions**:
+**exact infinite-horizon $V_\pi(4,4)$ at $\gamma=0.99$**. We neither selected
+a favorable checkpoint nor changed settings after seeing the results.
+Intervals are **mean ± 1.96 SEM over the 100 training seeds**; paired differences
+are calculated within seed first. Threshold fractions use Wilson 95% intervals.
+Checkpoint bands and secondary intervals are pointwise, without multiplicity
+adjustment. They describe seed variability in this fixed world, not uncertainty
+about whether the world is a realistic ecological model.
+
+### Final value: a mean improvement with substantial failures
+
+| Policy | Mean final value (95% CI) | Seed SD | Seeds ≥90% of oracle (Wilson 95% CI) |
+| --- | ---: | ---: | ---: |
+| Matched frozen Q | **72.1011 [70.8602, 73.3420]** | 6.3311 | **7/100 = 7% [3.43%, 13.75%]** |
+| Learned-model planning | **78.0710 [75.4439, 80.6980]** | 13.4033 | **51/100 = 51% [41.35%, 60.58%]** |
+| True-model oracle | **90.2235** | — | Reference, not a learned seed population |
+
+The paired learned-model-minus-Q difference is **5.9699 [3.1173, 8.8225]**.
+Planning improves **71 seeds**, worsens **28**, and ties **1** within the
+established numerical tolerance. Individual paired differences range from
+**−35.9929 to +30.0928**. The planned policies reach **86.53%** of oracle value
+on average, compared with **79.91%** for Q, but their final values range from
+**37.3557 to 90.2235**. The oracle threshold is **81.2011**.
+
+![Value during collection, paired final outcomes, and all paired differences](results/learned_world_model/policy_values.png)
+
+This is evidence that **model estimation plus planning extracted more value
+on average from these observations**. The planner was neither reliably better
+for every seed nor close to the oracle for every seed. Equal environmental
+experience also does not mean equal computation.
+
+### Did the model imagine the right future?
+
+For each learned-model policy, we evaluate the **same policy** in its own model
+and in the true environment, using $\gamma=0.99$ in both:
+
+| Final diagnostic | Mean across seeds (95% CI) |
+| --- | ---: |
+| Predicted value in its own model | **105.0460 [100.8014, 109.2906]** |
+| Actual value in the true environment | **78.0710 [75.4439, 80.6980]** |
+| Paired prediction − actual value | **26.9751 [21.2637, 32.6864]** |
+| Absolute prediction error | **27.2236 [21.5582, 32.8889]** |
+
+The prediction RMSE is **39.6013**. **93/100** models overpredict their planned
+policy's value. These are errors in predicted expected return, not discrepancies
+between noisy simulation returns. The actual policy values use exact true-model
+evaluation. Predicted values can exceed the true oracle because the estimated
+dynamics describe a different world.
+
+![Learned-model predictions versus true values, and prediction error during collection](results/learned_world_model/predicted_vs_actual.png)
+
+Coverage remains uneven: a mean **5.20 of 75 state/action rows** are unknown.
+Even a visited row can have too little evidence. In preselected **seed 0**, the
+action **harvest B at `(3,4)` was observed only once**, returning to `(3,4)` with
+reward 1.5. Its estimated row therefore promises that reward and successor
+forever, yielding imagined value **150** at that state. The planner's predicted
+value from `(4,4)` is **149.2537**, but its actual value is **85.1536**; the same
+seed's Q policy achieves **65.3646**. The rewarding self-loop is an observed
+small-sample estimate, distinct from the **zero-reward** default for unknown
+rows. This illustrates an optimistic model error; it does not establish that
+this particular mechanism explains every seed's error or the whole Q gap.
+
+### Frozen behavior: resources and harvest after learning stops
+
+We ran **20 independent 1,000-step trajectories per training seed per final
+policy**: 2,000 per policy and **4 million evaluation transitions** in total.
+All start at `(4,4)`, with Q updates and epsilon exploration off. Greedy ties
+retain the established uniform mixture. Each matched trajectory pair shares
+regeneration uniforms and action-sampling uniforms, but applies them to its
+own stocks and policy. These streams are independent of collection.
+
+Stocks and depletion use **pre-action** states, and depletion means stock zero.
+We first average the 20 trajectories within each training seed, then calculate
+uncertainty across the 100 seed means. Neither the 2,000 trajectories nor their
+individual time steps are treated as independent training replicates.
+
+| Frozen-policy outcome | Q policy: mean (95% CI) | Learned-model policy: mean (95% CI) |
+| --- | ---: | ---: |
+| Mean stock A | **0.4510 [0.2668, 0.6353]** | **2.6442 [2.4917, 2.7966]** |
+| Mean stock B | **3.4170 [3.3910, 3.4430]** | **2.9158 [2.7637, 3.0679]** |
+| Either patch depleted | **76.77% [69.45%, 84.10%]** | **4.50% [1.37%, 7.62%]** |
+| Both patches depleted | **0.68% [0.47%, 0.88%]** | **0% [0%, 0%]** |
+| Harvested reward over 1,000 decisions | **725.88 [718.08, 733.68]** | **755.83 [726.63, 785.04]** |
+| Reward per decision | **0.7259 [0.7181, 0.7337]** | **0.7558 [0.7266, 0.7850]** |
+
+The paired stock-A increase is **2.1931 [1.9501, 2.4362]**, while stock B falls
+by **0.5012 [0.3439, 0.6585]**. Either-patch depletion falls by **72.28
+[64.44, 80.11] percentage points**. These policies distribute preservation
+differently. Zero observed joint depletion is a finite-sample result, not a
+general guarantee. Normal mean intervals are left untruncated in the saved
+summary, so a rare per-patch depletion metric can have a negative lower bound.
+
+The paired **undiscounted** harvest gain is **29.95 [−0.27, 60.17]** reward
+over 1,000 steps: this interval includes zero. Thus the primary discounted-value
+improvement does not establish a clear improvement in this secondary harvest
+outcome. Saved results also include per-patch depletion, successful A/B
+harvests, rests, failures, and finite-window discounted returns.
+
+![Stocks, depletion, and harvest under frozen final policies](results/learned_world_model/frozen_resources.png)
+
+These are **frozen-policy outcomes**, not the exploratory training behavior
+reported in experiment 2. The seed-0 policy maps and trajectory below were
+chosen in advance, with **trajectory 0 and its first 120 decisions** fixed
+before the run. The full 1,000-step illustration is saved; population claims
+come from all seeds.
+
+![Preselected seed-0 policies and paired frozen trajectory](results/learned_world_model/seed_0_policies_and_trajectory.png)
+
+### Runtime, saved evidence, and reproduction
+
+On the existing Python 3.10.12 / NumPy 1.26.4 / Matplotlib 3.10.9 WSL CPU
+environment, using one OpenBLAS thread:
+
+| Phase | Measured wall time |
+| --- | ---: |
+| Collection, Q updates, and count/reward accumulation | **28.253 s** |
+| Empirical estimation and planning, all 21 checkpoints | **0.226 s** |
+| Final checkpoint's estimation/planning alone | **0.0108 s** |
+| True-model checkpoint policy evaluation | **0.0415 s** |
+| Frozen trajectory generation and aggregation | **1.877 s** |
+| Complete experiment invocation, including checks, saving, and initial plotting | **35.308 s** |
+
+Collection time excludes snapshot copies and archive I/O. Planning includes
+normalization checks, policy evaluation in the estimated model, and policy
+improvement; models needed **1–12** policy-iteration rounds. These are batched
+NumPy CPU timings, not general complexity claims. The Q collector incurs no
+model-planning cost; the additional planner uses the same experience with
+additional storage and computation. Later figure-only regeneration is excluded
+from the recorded experiment invocation.
+
+```bash
+source .venv/bin/activate
+python check_learned_world_model.py
+OPENBLAS_NUM_THREADS=1 python run_learned_world_model.py
+# Rebuild the four figures without collection, planning, or evaluation:
+python run_learned_world_model.py --plot-only
+# An intentional independent reproduction preserves the completed outputs:
+OPENBLAS_NUM_THREADS=1 python run_learned_world_model.py --output results/learned_world_model_repeat
+```
+
+The default invocation reuses completed outputs. If collection has been saved
+but later stages are incomplete, it reuses that archive after checking source
+hashes and configuration. The checks use a tiny synthetic model to verify
+counts, separate seed data, unknown defaults, analytic values, and agreement
+with the established value-iteration utility; they do not collect additional
+foraging data. Runtime checks confirm normalization, count totals, residuals,
+and agreement with the existing true-policy evaluator. **The full experiment
+was run once**, with no sweeps or settings changed afterward.
+
+[results/learned_world_model/](results/learned_world_model/) contains about
+**4.5 MiB**:
+
+| File | Contents |
+| --- | --- |
+| `collection.npz` | At all 21 checkpoints: Q, $N(s,a,s')$, $N(s,a)$, reward sums, cumulative collection runtime; final collection RNG states. |
+| `results.npz` | Both policies and exact values at every checkpoint, own-model predictions, final estimated transition/reward arrays and unknown mask, final Q/counts, planning rounds/residuals/times, unchanged oracle reference. |
+| `frozen_behavior.npz` | Per-trajectory metrics, within-training-seed averages and binned curves, all evaluation seed IDs, complete seed-0/trajectory-0 stocks/actions/rewards and shared draws. |
+| `summary.json` | Mean/paired uncertainty, oracle-threshold fractions, replay comparisons, model-prediction errors, coverage, and frozen behavior. |
+| `manifest.json` | Fixed configuration, collection seeds and evaluation-seed recipe, information boundaries, source/baseline hashes, versions, runtime, and reproduction commands. |
+| `run.log` and four PNG figures | Single-run progress and figures regenerated from the saved arrays. |
+
+Use `numpy.load(path, allow_pickle=False)`. Collection arrays start with
+**checkpoint × seed**; successor counts add **state × action × next state**.
+Policy/value arrays start with **checkpoint × method × seed**, where methods
+are `[Q-learning, learned-model planning]`. Predicted values start with
+**checkpoint × seed**. Frozen trajectory metrics use **method × seed ×
+trajectory × metric**; seed curves use **method × seed × bin × metric**.
+Axes and metric names are saved, and checkpoint models can be reconstructed
+from their counts without replaying experience.
+
+Read [learned_world_model.py](learned_world_model.py) for the estimator and
+planner, [run_learned_world_model.py](run_learned_world_model.py) for collection
+and separate evaluation, and
+[learned_world_model_figures.py](learned_world_model_figures.py) for plotting.
+Existing environment, learner, numerical summaries, and plotting utilities
+are reused without modifying their source.
+
+### Interpretation and one next hypothesis
+
+The improvement shows that **empirical model estimation plus planning extracted
+more value from this fixed experience on average**. It does **not** isolate one
+cause of Q-learning's shortfall. Finite data, uneven state coverage, constant
+alpha, noisy bootstrap targets, different ways of reusing observations, and
+additional computation remain entangled. Nor does it establish that model-based
+methods always win: this run contains large losses as well as gains.
+
+**Next hypothesis:** treating rarely observed transitions as uncertain, instead
+of planning as if their observed frequencies were exact, would reduce optimistic
+prediction errors and severe policy failures on the **same saved data**. A future
+comparison could fix a conservative planning rule in advance, then test its
+calibration and final true-policy value without collecting more experience.
+That follow-up has not been run; there is no guarantee that reducing optimism
+would improve value rather than make the planner too cautious.
 
 ## Textbook connection
 
