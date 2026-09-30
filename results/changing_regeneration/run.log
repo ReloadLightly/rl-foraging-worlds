@@ -1,0 +1,52 @@
++0 / total 250,000 observations per method/condition/seed
++5,000 / total 255,000 observations per method/condition/seed
+  Stable | Frozen: r=0.836, A/B=2.81/3.40, empty=5.7%; Cumulative: r=0.836, A/B=2.83/3.40, empty=5.5%; Forgetting: r=0.837, A/B=2.84/3.40, empty=5.4%
+  Changed | Frozen: r=0.428, A/B=2.77/3.13, empty=0.2%; Cumulative: r=0.437, A/B=2.73/3.11, empty=0.4%; Forgetting: r=0.439, A/B=2.72/3.11, empty=0.5%
+  Seed 0 changed/forgetting, (3,3)/rest: actual N=13,814, weight=7469.05, P(self)=0.4802
++10,000 / total 260,000 observations per method/condition/seed
+  Stable | Frozen: r=0.834, A/B=2.80/3.40, empty=5.9%; Cumulative: r=0.834, A/B=2.84/3.39, empty=5.6%; Forgetting: r=0.834, A/B=2.84/3.39, empty=5.7%
+  Changed | Frozen: r=0.428, A/B=2.77/3.13, empty=0.2%; Cumulative: r=0.450, A/B=2.61/3.09, empty=1.0%; Forgetting: r=0.485, A/B=2.22/3.06, empty=7.3%
+  Seed 0 changed/forgetting, (3,3)/rest: actual N=15,824, weight=5222.08, P(self)=0.5538
++15,000 / total 265,000 observations per method/condition/seed
+  Stable | Frozen: r=0.833, A/B=2.78/3.40, empty=6.7%; Cumulative: r=0.835, A/B=2.84/3.40, empty=6.1%; Forgetting: r=0.835, A/B=2.86/3.40, empty=5.7%
+  Changed | Frozen: r=0.429, A/B=2.77/3.13, empty=0.2%; Cumulative: r=0.470, A/B=2.44/3.07, empty=2.0%; Forgetting: r=0.636, A/B=1.19/2.75, empty=37.9%
+  Seed 0 changed/forgetting, (3,3)/rest: actual N=15,904, weight=2663.82, P(self)=0.5572
++20,000 / total 270,000 observations per method/condition/seed
+  Stable | Frozen: r=0.833, A/B=2.79/3.40, empty=6.3%; Cumulative: r=0.836, A/B=2.86/3.40, empty=5.4%; Forgetting: r=0.837, A/B=2.91/3.40, empty=4.8%
+  Changed | Frozen: r=0.427, A/B=2.77/3.13, empty=0.2%; Cumulative: r=0.513, A/B=1.87/3.05, empty=20.8%; Forgetting: r=0.837, A/B=1.57/1.77, empty=25.0%
+  Seed 0 changed/forgetting, (3,3)/rest: actual N=15,904, weight=1331.91, P(self)=0.5572
++25,000 / total 275,000 observations per method/condition/seed
+  Stable | Frozen: r=0.835, A/B=2.80/3.40, empty=6.1%; Cumulative: r=0.838, A/B=2.89/3.40, empty=5.1%; Forgetting: r=0.838, A/B=2.90/3.40, empty=5.0%
+  Changed | Frozen: r=0.428, A/B=2.78/3.13, empty=0.2%; Cumulative: r=0.578, A/B=1.12/3.01, empty=41.5%; Forgetting: r=0.996, A/B=2.06/0.95, empty=29.2%
+  Seed 0 changed/forgetting, (3,3)/rest: actual N=15,904, weight=665.95, P(self)=0.5572
++30,000 / total 280,000 observations per method/condition/seed
+  Stable | Frozen: r=0.833, A/B=2.80/3.40, empty=5.9%; Cumulative: r=0.837, A/B=2.91/3.40, empty=4.9%; Forgetting: r=0.830, A/B=2.81/3.38, empty=6.2%
+  Changed | Frozen: r=0.427, A/B=2.78/3.13, empty=0.2%; Cumulative: r=0.594, A/B=1.02/2.97, empty=44.7%; Forgetting: r=1.040, A/B=1.98/0.78, empty=35.1%
+  Seed 0 changed/forgetting, (3,3)/rest: actual N=15,906, weight=334.74, P(self)=0.5595
++35,000 / total 285,000 observations per method/condition/seed
+  Stable | Frozen: r=0.836, A/B=2.80/3.40, empty=6.1%; Cumulative: r=0.840, A/B=2.92/3.40, empty=4.9%; Forgetting: r=0.830, A/B=2.80/3.37, empty=7.0%
+  Changed | Frozen: r=0.429, A/B=2.78/3.13, empty=0.2%; Cumulative: r=0.612, A/B=0.96/2.93, empty=46.6%; Forgetting: r=1.060, A/B=1.85/0.75, empty=37.0%
+  Seed 0 changed/forgetting, (3,3)/rest: actual N=15,906, weight=167.37, P(self)=0.5595
++40,000 / total 290,000 observations per method/condition/seed
+  Stable | Frozen: r=0.835, A/B=2.80/3.40, empty=6.5%; Cumulative: r=0.839, A/B=2.91/3.40, empty=5.2%; Forgetting: r=0.830, A/B=2.77/3.38, empty=7.2%
+  Changed | Frozen: r=0.430, A/B=2.78/3.13, empty=0.2%; Cumulative: r=0.632, A/B=1.04/2.82, empty=44.4%; Forgetting: r=1.070, A/B=1.75/0.74, empty=38.3%
+  Seed 0 changed/forgetting, (3,3)/rest: actual N=15,906, weight=83.68, P(self)=0.5595
++45,000 / total 295,000 observations per method/condition/seed
+  Stable | Frozen: r=0.834, A/B=2.78/3.40, empty=6.6%; Cumulative: r=0.838, A/B=2.91/3.40, empty=5.3%; Forgetting: r=0.821, A/B=2.75/3.34, empty=8.3%
+  Changed | Frozen: r=0.428, A/B=2.78/3.13, empty=0.2%; Cumulative: r=0.661, A/B=1.09/2.68, empty=40.6%; Forgetting: r=1.076, A/B=1.68/0.73, empty=39.1%
+  Seed 0 changed/forgetting, (3,3)/rest: actual N=15,906, weight=41.84, P(self)=0.5595
++50,000 / total 300,000 observations per method/condition/seed
+  Stable | Frozen: r=0.833, A/B=2.80/3.40, empty=6.3%; Cumulative: r=0.838, A/B=2.92/3.40, empty=5.0%; Forgetting: r=0.830, A/B=2.77/3.39, empty=7.2%
+  Changed | Frozen: r=0.428, A/B=2.78/3.13, empty=0.2%; Cumulative: r=0.679, A/B=1.13/2.58, empty=38.3%; Forgetting: r=1.082, A/B=1.65/0.72, empty=40.0%
+  Seed 0 changed/forgetting, (3,3)/rest: actual N=15,906, weight=20.92, P(self)=0.5595
+PRIMARY: {"difference": {"mean": -36.56479181514057, "seed_sd": 8.27219520107381, "sem": 0.827219520107381, "ci95": [-38.18614207455104, -34.943441555730104], "minimum": -50.25328888640658, "maximum": -3.3005236904718096, "quantiles_10_50_90": [-44.54039057286442, -37.84310309015831, -29.92361891910853]}, "lower_is_better": true, "improved": 100, "worsened": 0, "tied": 0}
+STABLE: {"difference": {"mean": 0.3115133773235588, "seed_sd": 0.5277235281294419, "sem": 0.05277235281294419, "ci95": [0.20807956581018822, 0.41494718883692944], "minimum": -1.0294710444610717, "maximum": 1.9798671683872193, "quantiles_10_50_90": [-0.10789872418155574, 0.15654828934040327, 1.0201427243044652]}, "lower_is_better": true, "improved": 12, "worsened": 83, "tied": 5}
+Stable oracle 90.22349930008048
+  Frozen average gap 0.22728581501088516 final value 89.99621348506956 >=90% 100 MAE 0.3837531987031156
+  Cumulative average gap 0.1548085722147072 final value 90.1165412694871 >=90% 100 MAE 0.24934524529768326
+  Forgetting average gap 0.466321949538266 final value 89.67710164288286 >=90% 98 MAE 1.112664333743243
+Changed oracle 118.70884169822591
+  Frozen average gap 76.71482665419038 final value 41.99401504403558 >=90% 0 MAE 48.03423471824151
+  Cumulative average gap 63.63163095973152 final value 69.10047471935414 >=90% 6 MAE 12.770773746239374
+  Forgetting average gap 27.066839144590954 final value 114.22451551961134 >=90% 100 MAE 0.5627829279779142
+Runtime: {'collection_seconds': 39.41661088634282, 'planning_seconds': 3.182694945251569, 'true_evaluation_and_oracles_seconds': 5.003607108956203, 'completion_invocation_seconds': 60.59672542498447}
