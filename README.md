@@ -1,130 +1,110 @@
 # Learning to leave something for tomorrow
 
-**When a successful world model becomes outdated, does forgetting help?**
+**Can better experience compensate for an incomplete state?**
 
-Experiment 7 starts from 100 successful learned-model agents and asks them to
-continue in either the original world or an unannounced reversal of regeneration
-dynamics. **Discounting older evidence substantially improves adaptation, but
-sacrifices reliability when the world stays unchanged.**
+Experiment 8 hides the distinction between patches A and B, leaving only their
+total stock. **Model-guided experience helps both representations, but does not
+close the gap caused by compression in this fitted-model planning procedure.**
+With model-controlled histories, full-state policies achieve value **90.00**;
+total-stock policies achieve **48.76**. The primary paired full-minus-compressed
+difference is **41.23 [39.91, 42.56]**, positive in all 100 seeds.
 
-In the changed world, forgetting reduces the time-averaged oracle-value gap from
-**63.63 to 27.07**: paired reduction **36.56 [34.94, 38.19]** across 100 seeds.
-Every seed improves on this prespecified tracking measure. In the stable world,
-forgetting instead **increases** the gap by **0.312 [0.208, 0.415]**, with 83 seeds
-worse, 12 better, and 5 tied. The evidence half-life was fixed at 5,000 new
-transitions before the run and was not tuned afterward.
+![Policy values and paired representation and experience comparisons](results/state_representation/values_and_comparisons.png)
 
-![Adaptation in both worlds and paired differences in the time-averaged oracle gap](results/changing_regeneration/adaptation.png)
+We reuse Experiment 5’s final **250,000 observations per seed**, from both
+Q-controlled and unpenalized model-controlled collection. No histories were
+recollected and no Q-learning was repeated. Each dataset is fitted twice: a
+25-state model of `(A,B)`, and a 9-observation model of `A+B`. Counts and reward
+sums are aggregated exactly, preserving action identities. Both use the same
+unpenalized planner and γ=0.99. True dynamics enter only after policies are selected.
 
-The tracking measure integrates exact policy-value gaps at **0, 1,000, …, 50,000**
-new transitions and divides by 50,000. Lower is better. It measures how well the
-current greedy policy tracks the relevant oracle; **it is not realized online
-regret**. Intervals describe uncertainty across training seeds. The upper panels
-use different vertical scales so the smaller stable-world cost remains visible.
-
-All methods inherit the same **250,000-observation Experiment 5 histories** and
-policies, then receive **50,000 additional observations per seed per world**,
-for **300,000 total**. Frozen retains its model and policy. Cumulative gives old
-and new observations equal weight. Forgetting multiplies its accumulated evidence
-by **ρ=2^(−1000/5000)** before each rollout, then adds observations with unit weight.
-Both learning methods replan every 1,000 steps. Exploration remains ε=0.1.
-
-This is **blockwise exponential forgetting**; individual historical ages are not
-reconstructed. The identical decay schedule runs in both worlds, without a regime
-label or change notification. Actual counts are recorded separately from evidence
-weights. Positive weights below one are normalized by their actual weight.
-
-| World and method | Time-averaged oracle gap | Final true value [95% interval] | ≥90% of this world’s oracle |
+| Collection history | Full `(A,B)` value [95% interval] | Total `A+B` value [95% interval] | Seeds ≥90% of oracle: full / total |
 | --- | ---: | ---: | ---: |
-| Stable · frozen | 0.227 | 90.00 [89.90, 90.10] | 100/100 |
-| Stable · cumulative | 0.155 | 90.12 [90.05, 90.19] | 100/100 |
-| Stable · forgetting | 0.466 | 89.68 [89.10, 90.26] | 98/100 |
-| Changed · frozen | 76.715 | 41.99 [41.45, 42.54] | 0/100 |
-| Changed · cumulative | 63.632 | 69.10 [64.97, 73.23] | 6/100 |
-| Changed · forgetting | 27.067 | 114.22 [113.88, 114.57] | 100/100 |
+| Q-controlled | 81.11 [78.95, 83.27] | 25.96 [23.13, 28.79] | 63 / 0 |
+| Model-controlled | 90.00 [89.90, 90.10] | 48.76 [47.35, 50.18] | 100 / 0 |
 
-Values are exact $V_\pi(4,4)$ at γ=0.99. Separate oracle values are **90.2235**
-for the stable world and **118.7088** for the changed world. The final
-forgetting-minus-cumulative value difference is **45.12 [41.01, 49.24]** after
-the change. In the stable world it is **−0.44 [−1.03, 0.15]**; that interval spans
-zero, while the prespecified tracking measure shows a cost over the full period.
-No favorable checkpoint was selected.
+Values are exact returns from `(4,4)` in the original world, without exploration.
+The full-state oracle is **90.2235**. Intervals use the 100 independent training
+seeds; contrasts are paired within seed. All failures are retained.
 
-**What changed in the world?** After harvesting, regeneration below capacity
-changes from $g_i(0.1+0.9m/4)$ to $g_i(1-0.9m/4)$, with $g=(0.3,0.6)$.
-Regeneration is still zero at capacity four. Rewards, actions, and event order
-stay the same. Low stocks now regenerate faster, so keeping stocks high can
-preserve an outdated behavior rather than a good strategy. This is a **stylized
-regime reversal**, not an ecological claim. Original environment defaults and
-all completed experiments remain unchanged.
+Better experience is especially useful to the compressed planner. Switching from
+Q-controlled to model-controlled histories gains **22.80 [19.95, 25.66]** under
+compression, versus **8.89 [6.73, 11.05]** with full state. The difference between
+these benefits, **full minus compressed**, is **−13.92 [−17.33, −10.50]**.
+This is evidence that useful experience survives compression, not that it repairs
+the missing state information. Both historical collectors themselves observed
+full `(A,B)`; this experiment does not test collection by a partially observing agent.
 
-**What was sacrificed?** In the stable world, forgetting causes about **35.97
-state-level policy changes per seed**, versus **4.28** for cumulative memory.
-Across the fixed snapshots, **37 seeds fall below 90% of oracle at least once**,
-versus **2** with cumulative memory. Both transient and final failures are retained.
-Forgetting also reduces actual stable-world interaction reward by
-**0.00494 [0.00315, 0.00674] per decision**, paired across seeds.
+**Why does the missing distinction matter?** The preselected states `(4,3)` and
+`(3,4)` both have total seven. Their immediate rewards agree for each action, but
+their next-total distributions differ. After harvest B, for example, the chances
+of next total six, seven, and eight are **(0.670, 0.330, 0)** from `(4,3)`, versus
+**(0.411, 0.481, 0.108)** from `(3,4)`. The optimal full-state actions are harvest A
+and harvest B, respectively. A policy using only total stock must choose the same
+action distribution in both states.
 
-![Prediction errors and final predictions in stable and changed worlds](results/changing_regeneration/prediction_errors.png)
+![True transitions and the two collectors’ weights within total seven](results/state_representation/merged_states_mechanism.png)
 
-After the change, mean absolute prediction error falls from **12.77** with
-cumulative memory to **0.56** with forgetting. In the stable world it rises
-from **0.25 to 1.11**. These predictions use each agent’s own empirical dynamics
-and the original observed rewards; there is no planning penalty. All true-model
-access and oracle computation happen after interaction and policy selection. The
-unchanged inherited model predicts only **25.47** for the final changed-world
-forgetting policies, while their actual value is **114.22** and their updated
-models predict **114.40**. These original-model predictions are saved separately.
+The fitted model also mixes these states differently for different actions.
+Within total seven, model-controlled histories draw **91.29%** of harvest-A
+observations from `(4,3)` and **96.28%** of harvest-B observations from `(3,4)`
+(mean conditional fractions across seeds). Those are favorable locations for the
+respective harvests. A compressed planner cannot recover that distinction when
+acting. All 100 compressed policies from each collector choose B at total seven.
+This pair illustrates a mechanism; it does not isolate the entire value loss.
 
-**The preselected seed-0 example shows both adaptation and its limits.** At
-`(3,3)`, the inherited model favors rest. The changed world’s oracle favors
-harvest B. Forgetting settles on harvest B from +17,000 onward; cumulative memory
-keeps alternating between rest and harvest A and finishes on rest. In the stable
-world, forgetting instead leaves the correct rest action and ends on harvest A.
+**More observations do not guarantee accurate imagined futures.** With
+model-controlled data, the full model predicts **90.03**, close to its policies’
+actual **90.00**. The compressed model predicts **98.35**, while its policies
+actually achieve **48.76**. Mean absolute prediction error is **0.38 versus 49.59**.
+All 27 compressed observation-action rows have at least ten observations in every
+model-controlled dataset. Pooling removes sparse rows while discarding information.
 
-![Seed-0 successor belief, predicted action-value differences, and chosen actions](results/changing_regeneration/seed_0_beliefs_and_actions.png)
+![Predicted versus actual policy values and absolute prediction errors](results/state_representation/predicted_vs_actual.png)
 
-Forgetting does not make every belief accurate. In the changed world, seed 0’s
-estimated rest self-loop probability finishes at **0.5595**, versus the true
-**0.7265**. It gets no new observations of that row after +30,000; decay shrinks
-the row’s weight without changing its normalized probabilities. The resulting
-policy can improve while part of its model remains outdated. Full successor
-probabilities, action values, and counts are saved for every snapshot.
+[Seed-0 policy maps and coverage](results/state_representation/policies_and_coverage.png)
+show the action constraints imposed by compression. The model-controlled
+compressed policies’ 10th-percentile value is **34.42**, versus **88.89** with full
+state. The result concerns this particular empirical surrogate and planner:
+**it is not a bound on the best possible policy under partial observation**.
+Memory, different fitting methods, and other compressed representations were not
+tested. Large counts cannot by themselves establish the Markov property.
 
-Actual changed-world interaction reward averages **0.872 per decision** with
-forgetting versus **0.563** with cumulative memory: paired gain
-**0.309 [0.297, 0.322]**. Average stock B falls from **2.931 to 1.536**. Under this
-reversed rule, lower stocks are not automatically evidence of worse decisions.
-[Reward, stock, and depletion curves](results/changing_regeneration/interaction_resources.png)
-show both environmental conditions. These trajectories include exploration;
-the exact policy-value curves evaluate greedy behavior without it.
+**Chapter 3 connection:** a state should retain the information needed to predict
+rewards and successors given an action. The same total can hide different
+transition laws and different useful decisions. Moreover, the collection policy
+changes which hidden states enter each fitted row. A learned world model estimates
+these dynamics and rewards; a learned Q table estimates action returns directly.
 
-**Chapter 3 connection:** each constant regime defines its own finite MDP.
-Across the hidden change, stock-only observations do **not** have one stationary
-transition law. Cumulative memory mixes evidence from two different dynamics;
-forgetting gives recent evidence more influence. A learned world model estimates
-successor probabilities and rewards, then plans through those estimates; a Q table
-estimates action returns directly. Policy iteration previews Chapter 4, and
-online model-guided adaptation previews Chapter 8. This is not Dyna-Q.
+| Learning connection | Where it appears |
+| --- | --- |
+| Chapter 3: states, actions, rewards, transition probabilities, policies, discounted returns and value functions | The original foraging world, exact policy comparisons, and this representation experiment |
+| Chapter 3: continuing tasks, state sufficiency and stationarity | Collection cutoffs, merged observations here, and Experiment 7’s hidden dynamics change |
+| Chapter 4 preview | Exact policy evaluation, value iteration and policy iteration |
+| Chapter 6 §6.5 preview | Q-learning from observed transitions |
+| Chapter 8 preview | Model-guided interaction and replanning; this implementation is not Dyna-Q |
+| Our research extensions | Matched experience, count penalties, collector comparisons, forgetting and observation compression |
 
-The result concerns one small world, one abrupt reversal, these histories, and
-one fixed half-life. It does not show that forgetting always helps, that its
-half-life is optimal, or that its full model becomes accurate. Its final effective
-evidence weight is only **7,961.62**, despite **300,000 actual observations**.
-A useful next question is whether evidence from prediction errors can guide
-forgetting without an oracle change signal, while avoiding the stable-world
-instability measured here. That experiment has not been run.
+The [chapter map](notes/chapter_map.md) includes a worked distinction between
+**genuine termination** and our **1,000-step collection cutoff**. In the latter,
+the final actual successor is counted and continuation value remains; resetting
+the next rollout creates no extra transition.
 
-Detailed uncertainty tables, the protocol, runtime, archive layout, and
-reproduction commands are in the [Experiment 7 notes](notes/changing_regeneration.md).
-The single run collected **30 million new transitions** in **39.42 s**, with
-**3.18 s** for planning. Figures can be rebuilt without rerunning the experiment:
+An evidence-based next question is whether adding just the bit **`A>B`** to total
+stock recovers much of the lost value. It separates the two illustrative states
+while remaining compressed. It would not automatically make every observation
+Markov. That analysis has not been run.
+
+The [Experiment 8 notes](notes/state_representation.md) contain the fixed protocol,
+uncertainty tables, all three action distributions, count weights, limitations,
+archive layout and reproduction commands. The analysis ran once in **3.35 s**,
+with **zero new environmental transitions**. Rebuild figures from saved results:
 
 ```bash
-python run_changing_regeneration.py --plot-only
+python run_state_representation.py --plot-only
 ```
 
-Earlier results remain available in the linked notes:
+Previous experiments and original environment defaults are preserved:
 
 | Experiment | Question and measured result |
 | --- | --- |
@@ -135,7 +115,8 @@ Earlier results remain available in the linked notes:
 | [5: Model-guided collection](notes/experiments_1_to_5.md#experiment-5-can-a-world-model-improve-through-its-own-actions) | Adaptive model collection gains 8.89 [6.73, 11.05] over Q collection with the same final planner. |
 | [6: Replanning ablation](notes/replanning_ablation.md) | Most of that improvement survives fixed initial behavior; adaptation adds 1.30 [0.14, 2.47]. |
 | [7: Outdated world model](notes/changing_regeneration.md) | Forgetting reduces the changed-world tracking gap by 36.56, but adds 0.312 to the stable-world gap. |
+| [8: Incomplete state](notes/state_representation.md) | Better data helps both representations; full-state value exceeds compressed by 41.23 [39.91, 42.56] with model-controlled histories. |
 
 The [original world definition](notes/experiments_1_to_5.md#the-world-harvest-first-then-regenerate)
-and earlier protocols are preserved. This NumPy project follows Sutton and Barto,
+and earlier protocols remain available. This NumPy project follows Sutton and Barto,
 second edition, and our [Chapter 2 bandit experiments](https://github.com/ReloadLightly/rl-changing-worlds).

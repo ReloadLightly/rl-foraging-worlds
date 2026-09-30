@@ -1,0 +1,11 @@
+Selected full: both datasets, all 100 seeds; no true-model access.
+Selected compressed: both datasets, all 100 seeds; no true-model access.
+PRIMARY: {"difference": {"mean": 41.23420611522154, "seed_sd": 6.756059997060194, "sem": 0.6756059997060194, "ci95": [39.91001835579774, 42.55839387464534], "minimum": 37.87480431258905, "maximum": 55.808242400805966, "quantiles_10_50_90": [37.87480431258905, 37.87480431258905, 54.47126701838903]}, "improved": 100, "worsened": 0, "tied": 0}
+full_experience_benefit {"difference": {"mean": 8.887058576761305, "seed_sd": 11.026814427205322, "sem": 1.1026814427205323, "ci95": [6.725802949029061, 11.048314204493549], "minimum": -1.336975382416938, "maximum": 51.09454031037712, "quantiles_10_50_90": [0.0, 5.6216971216288485, 22.220197280256336]}, "improved": 67, "worsened": 1, "tied": 32}
+compressed_experience_benefit {"difference": {"mean": 22.803679395956465, "seed_sd": 14.575436821828722, "sem": 1.4575436821828722, "ci95": [19.946893778878035, 25.660465013034894], "minimum": -17.933438088216917, "maximum": 35.64463888678503, "quantiles_10_50_90": [0.0, 26.789038487500974, 35.64463888678503]}, "improved": 79, "worsened": 1, "tied": 20}
+experience_benefit_difference {"difference": {"mean": -13.916620819195167, "seed_sd": 17.437680279493577, "sem": 1.7437680279493577, "ci95": [-17.33440615397591, -10.498835484414425], "minimum": -35.64463888678503, "maximum": 34.55481264180224, "quantiles_10_50_90": [-35.64463888678503, -17.711200798568083, 10.214728427393496]}, "improved": 17, "worsened": 73, "tied": 10}
+Q-controlled / Full (A,B) true value 81.10915490830828 prediction 103.56668001363239 >=90% oracle 63
+Q-controlled / Total A+B true value 25.958327973891578 prediction 84.5191653698193 >=90% oracle 0
+Model-controlled / Full (A,B) true value 89.99621348506956 prediction 90.02824976227708 >=90% oracle 100
+Model-controlled / Total A+B true value 48.762007369848035 prediction 98.35277186450507 >=90% oracle 0
+Runtime: {'aggregation_seconds': 0.006587211973965168, 'full_fitting_and_planning_seconds': 0.04102023190353066, 'compressed_fitting_and_planning_seconds': 0.002924261032603681, 'evaluation_and_diagnostics_seconds': 0.008373211952857673, 'completion_invocation_seconds': 3.3527705390006304}
