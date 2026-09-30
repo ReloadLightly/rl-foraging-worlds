@@ -1,107 +1,107 @@
 # Learning to leave something for tomorrow
 
-**Can better experience compensate for an incomplete state?**
+**How much can one extra observation bit recover?**
 
-Experiment 8 hides the distinction between patches A and B, leaving only their
-total stock. **Model-guided experience helps both representations, but does not
-close the gap caused by compression in this fitted-model planning procedure.**
-With model-controlled histories, full-state policies achieve value **90.00**;
-total-stock policies achieve **48.76**. The primary paired full-minus-compressed
-difference is **41.23 [39.91, 42.56]**, positive in all 100 seeds.
+Experiment 9 adds **`A>B`** to total food stock. **The bit recovers much of both
+policy value and prediction accuracy, but leaves meaningful failures.** With
+model-controlled histories, true value rises from **48.76 to 83.89**: paired gain
+**35.13 [33.75, 36.51]** across 100 seeds. Every seed improves. This recovers
+**85.2% of the mean value gap** between Experiment 8’s total-only and full-state
+policies. A gap of **6.10 [5.02, 7.18]** to full-state policies remains.
 
-![Policy values and paired representation and experience comparisons](results/state_representation/values_and_comparisons.png)
+![Policy values and paired comparisons for total stock plus one bit](results/one_bit_observation/values_and_comparisons.png)
 
-We reuse Experiment 5’s final **250,000 observations per seed**, from both
-Q-controlled and unpenalized model-controlled collection. No histories were
-recollected and no Q-learning was repeated. Each dataset is fitted twice: a
-25-state model of `(A,B)`, and a 9-observation model of `A+B`. Counts and reward
-sums are aggregated exactly, preserving action identities. Both use the same
-unpenalized planner and γ=0.99. True dynamics enter only after policies are selected.
+We reuse the same **250,000-observation Experiment 5 histories per seed**, from
+Q-controlled and unpenalized model-controlled collection. Both historical
+collectors observed full `(A,B)`. Only the new representation is fitted:
+`(A+B, int(A>B))`, with **16 reachable groups**. Experiment 8’s full-state and
+total-only policies, predictions and evaluations are reused unchanged.
+No experience is recollected and no Q-learning is repeated.
 
-| Collection history | Full `(A,B)` value [95% interval] | Total `A+B` value [95% interval] | Seeds ≥90% of oracle: full / total |
+| History and representation | True value [95% interval] | Mean absolute prediction error | Seeds ≥90% of full-state oracle |
 | --- | ---: | ---: | ---: |
-| Q-controlled | 81.11 [78.95, 83.27] | 25.96 [23.13, 28.79] | 63 / 0 |
-| Model-controlled | 90.00 [89.90, 90.10] | 48.76 [47.35, 50.18] | 100 / 0 |
+| Q · total only | 25.96 [23.13, 28.79] | 58.56 | 0/100 |
+| Q · total + bit | 60.34 [55.51, 65.17] | 34.97 | 25/100 |
+| Q · full `(A,B)` | 81.11 [78.95, 83.27] | 23.28 | 63/100 |
+| Model · total only | 48.76 [47.35, 50.18] | 49.59 | 0/100 |
+| Model · total + bit | 83.89 [82.78, 85.01] | 7.65 | 47/100 |
+| Model · full `(A,B)` | 90.00 [89.90, 90.10] | 0.38 | 100/100 |
 
-Values are exact returns from `(4,4)` in the original world, without exploration.
-The full-state oracle is **90.2235**. Intervals use the 100 independent training
-seeds; contrasts are paired within seed. All failures are retained.
+Values are exact `Vπ(4,4)` at γ=0.99 in the original world, without exploration.
+The oracle value is **90.2235**. Mean intervals use variation across historical
+training seeds; comparisons are paired within seed. The recovery percentage is a
+ratio of mean gaps. **This follow-up reuses histories and is not an independent
+replication.** The bit was hand-designed after Experiment 8, then fixed before
+this run; it was not learned or selected by searching alternatives.
 
-Better experience is especially useful to the compressed planner. Switching from
-Q-controlled to model-controlled histories gains **22.80 [19.95, 25.66]** under
-compression, versus **8.89 [6.73, 11.05]** with full state. The difference between
-these benefits, **full minus compressed**, is **−13.92 [−17.33, −10.50]**.
-This is evidence that useful experience survives compression, not that it repairs
-the missing state information. Both historical collectors themselves observed
-full `(A,B)`; this experiment does not test collection by a partially observing agent.
+**Prediction accuracy improves, without reaching full-state accuracy.** With
+model-controlled data, the new model predicts **91.31** while achieving **83.89**.
+Its absolute prediction error is lower than total-only by **41.94 [40.72, 43.16]**,
+with all 100 seeds improving. Its error remains **7.27 [5.97, 8.56]** above the
+full-state model’s. Better decisions and more accurate predictions are related
+outcomes, not interchangeable measurements.
 
-**Why does the missing distinction matter?** The preselected states `(4,3)` and
-`(3,4)` both have total seven. Their immediate rewards agree for each action, but
-their next-total distributions differ. After harvest B, for example, the chances
-of next total six, seven, and eight are **(0.670, 0.330, 0)** from `(4,3)`, versus
-**(0.411, 0.481, 0.108)** from `(3,4)`. The optimal full-state actions are harvest A
-and harvest B, respectively. A policy using only total stock must choose the same
-action distribution in both states.
+![Predicted versus actual values and absolute prediction errors](results/one_bit_observation/predictions.png)
 
-![True transitions and the two collectors’ weights within total seven](results/state_representation/merged_states_mechanism.png)
+Q-controlled histories give a more mixed result. Adding the bit gains
+**34.38 [29.92, 38.85]** in mean value, but **5 seeds worsen** and 5 tie.
+Absolute prediction error falls by **23.60 [17.52, 29.67]** on average while
+**18 seeds become less accurate**. The remaining value gap to full-state policies
+is **20.77 [16.00, 25.54]**. All failures and individual outcomes are saved.
 
-The fitted model also mixes these states differently for different actions.
-Within total seven, model-controlled histories draw **91.29%** of harvest-A
-observations from `(4,3)` and **96.28%** of harvest-B observations from `(3,4)`
-(mean conditional fractions across seeds). Those are favorable locations for the
-respective harvests. A compressed planner cannot recover that distinction when
-acting. All 100 compressed policies from each collector choose B at total seven.
-This pair illustrates a mechanism; it does not isolate the entire value loss.
+**The bit restores a useful distinction.** The first prespecified pair, `(4,3)`
+and `(3,4)`, now maps to `(7,1)` and `(7,0)`. All 100 model-history policies choose
+harvest A at `(4,3)` and harvest B at `(3,4)`, matching the full-state oracle.
+Total-only policies had to choose the same action at both and chose B.
 
-**More observations do not guarantee accurate imagined futures.** With
-model-controlled data, the full model predicts **90.03**, close to its policies’
-actual **90.00**. The compressed model predicts **98.35**, while its policies
-actually achieve **48.76**. Mean absolute prediction error is **0.38 versus 49.59**.
-All 27 compressed observation-action rows have at least ten observations in every
-model-controlled dataset. Pooling removes sparse rows while discarding information.
+**A different conflict remains.** The second pair, `(3,3)` and `(2,4)`, still
+shares observation `(6,0)`. Their optimal actions are rest and harvest B.
+Even after the same rest action, their true successor laws differ: the chance of
+remaining at `(6,0)` is **0.4106 versus 0.8350**. The observation therefore still
+omits information needed to predict transitions.
 
-![Predicted versus actual policy values and absolute prediction errors](results/state_representation/predicted_vs_actual.png)
+![Separated and still-merged examples: true transitions, fitted action values and policy choices](results/one_bit_observation/mechanism.png)
 
-[Seed-0 policy maps and coverage](results/state_representation/policies_and_coverage.png)
-show the action constraints imposed by compression. The model-controlled
-compressed policies’ 10th-percentile value is **34.42**, versus **88.89** with full
-state. The result concerns this particular empirical surrogate and planner:
-**it is not a bound on the best possible policy under partial observation**.
-Memory, different fitting methods, and other compressed representations were not
-tested. Large counts cannot by themselves establish the Markov property.
+At the merged observation, **56 model-history seeds choose B** and **44 choose
+rest**. The latter 44 reach oracle value from `(4,4)`; their policy can still be
+wrong elsewhere. In the preselected seed-0 example, the new policy rests at both
+`(3,3)` and `(2,4)`. Its fitted model predicts **87.39** for either, while their
+actual values are **88.09 and 84.43**. From `(4,4)`, this policy stays among the four
+states with both stocks at least three, so its wrong action at `(2,4)` does not
+reduce this particular starting-state value. Good value from one start does not
+establish Markov sufficiency or accuracy everywhere.
 
-**Chapter 3 connection:** a state should retain the information needed to predict
-rewards and successors given an action. The same total can hide different
-transition laws and different useful decisions. Moreover, the collection policy
-changes which hidden states enter each fitted row. A learned world model estimates
-these dynamics and rewards; a learned Q table estimates action returns directly.
+[Seed-0 policy maps and coverage](results/one_bit_observation/policies_and_coverage.png)
+show the recovered distinctions and remaining ties. Splitting observations also
+splits evidence: the new representation has 48 observation-action rows, versus
+27 for total-only and 75 for full state. With Q-controlled data, it averages
+**8.15 rows with fewer than ten visits**; with model-controlled data, **1.75**.
+Both representation and the collected evidence matter.
 
-| Learning connection | Where it appears |
-| --- | --- |
-| Chapter 3: states, actions, rewards, transition probabilities, policies, discounted returns and value functions | The original foraging world, exact policy comparisons, and this representation experiment |
-| Chapter 3: continuing tasks, state sufficiency and stationarity | Collection cutoffs, merged observations here, and Experiment 7’s hidden dynamics change |
-| Chapter 4 preview | Exact policy evaluation, value iteration and policy iteration |
-| Chapter 6 §6.5 preview | Q-learning from observed transitions |
-| Chapter 8 preview | Model-guided interaction and replanning; this implementation is not Dyna-Q |
-| Our research extensions | Matched experience, count penalties, collector comparisons, forgetting and observation compression |
+**Chapter 3 connection:** the state representation determines what a policy can
+distinguish and whether rewards and successors can be predicted from the current
+observation and action. A small added distinction can improve decisions without
+making the representation Markov. Here the empirical transition model remains a
+fitted surrogate whose rows depend on the collector’s hidden-state mixtures.
+Policy iteration is a **Chapter 4 preview**. The [chapter map](notes/chapter_map.md)
+separates those concepts from Q-learning’s Chapter 6 preview, model-guided
+interaction’s Chapter 8 preview, and our research extensions. It also retains the
+worked explanation of genuine termination versus a 1,000-step collection cutoff.
 
-The [chapter map](notes/chapter_map.md) includes a worked distinction between
-**genuine termination** and our **1,000-step collection cutoff**. In the latter,
-the final actual successor is counted and continuation value remains; resetting
-the next rollout creates no extra transition.
+This is one fixed representation, one planner and reused data from fully observing
+collectors. We have not found the best policy under partial observation, learned a
+representation, or isolated a single cause of every failure. The evidence supports
+asking next whether a short observation history can resolve the remaining
+`(3,3)` / `(2,4)` ambiguity without revealing another full-state feature. That
+experiment has not run.
 
-An evidence-based next question is whether adding just the bit **`A>B`** to total
-stock recovers much of the lost value. It separates the two illustrative states
-while remaining compressed. It would not automatically make every observation
-Markov. That analysis has not been run.
-
-The [Experiment 8 notes](notes/state_representation.md) contain the fixed protocol,
-uncertainty tables, all three action distributions, count weights, limitations,
-archive layout and reproduction commands. The analysis ran once in **3.35 s**,
-with **zero new environmental transitions**. Rebuild figures from saved results:
+The [Experiment 9 notes](notes/one_bit_observation.md) contain the protocol, all
+paired uncertainty and failures, true and fitted mechanism distributions,
+archive layout and reproduction command. The analysis ran once in **3.44 s**;
+no new environmental transitions were generated. Rebuild figures from saved data:
 
 ```bash
-python run_state_representation.py --plot-only
+python run_one_bit_observation.py --plot-only
 ```
 
 Previous experiments and original environment defaults are preserved:
@@ -115,7 +115,8 @@ Previous experiments and original environment defaults are preserved:
 | [5: Model-guided collection](notes/experiments_1_to_5.md#experiment-5-can-a-world-model-improve-through-its-own-actions) | Adaptive model collection gains 8.89 [6.73, 11.05] over Q collection with the same final planner. |
 | [6: Replanning ablation](notes/replanning_ablation.md) | Most of that improvement survives fixed initial behavior; adaptation adds 1.30 [0.14, 2.47]. |
 | [7: Outdated world model](notes/changing_regeneration.md) | Forgetting reduces the changed-world tracking gap by 36.56, but adds 0.312 to the stable-world gap. |
-| [8: Incomplete state](notes/state_representation.md) | Better data helps both representations; full-state value exceeds compressed by 41.23 [39.91, 42.56] with model-controlled histories. |
+| [8: Incomplete state](notes/state_representation.md) | Better data helps both representations; full-state value exceeds total-only by 41.23 [39.91, 42.56] with model-controlled histories. |
+| [9: One extra bit](notes/one_bit_observation.md) | The fixed bit recovers 85.2% of that mean value gap and greatly reduces prediction error, without restoring state sufficiency. |
 
 The [original world definition](notes/experiments_1_to_5.md#the-world-harvest-first-then-regenerate)
 and earlier protocols remain available. This NumPy project follows Sutton and Barto,

@@ -13,7 +13,7 @@ replications or evidence that any algorithm always wins.
 | `v_π`, `q_π`, optimal value and Bellman relations | Exact discounted policy values and an oracle reference | Chapter 3 objects; computational planning algorithms preview Chapter 4 |
 | Continuing versus episodic tasks | Our world continues; collection stops and resets administratively | Chapter 3 task distinction; worked example below |
 | A policy changes the experience distribution | Different collectors visit different state-action pairs, even at equal transition budgets | Experiments 5–6; model-guided interaction previews Chapter 8 |
-| Markov state representation | `(4,3)` and `(3,4)` have equal totals but different next-total laws and optimal actions | Experiment 8: a fitted compressed surrogate need not be an MDP |
+| Markov state representation | `(4,3)` and `(3,4)` have equal totals but different next-total laws and optimal actions; adding `A>B` separates them while leaving other conflicts | Experiments 8–9: useful decisions can improve without making the fitted surrogate an MDP |
 | Stationary dynamics | Each fixed regeneration regime has its own MDP; across an unobserved change, stocks alone lack one stationary law | Experiment 7 extension; different from Experiment 8’s fixed world with incomplete observation |
 
 A **transition model** estimates successor probabilities and immediate rewards
@@ -30,7 +30,7 @@ Dyna-Q’s interleaving of real and simulated Q-learning updates.
 
 **Research extensions:** matched-data comparisons (Experiment 3), a fixed heuristic
 count penalty (4), changes to the collector (5–6), forgetting in a changing world
-(7), and compressed observations (8). These use the book’s language to pose new,
+(7), and compressed observations with a fixed extra bit (8–9). These use the book’s language to pose new,
 restricted questions; they do not establish general rankings of learning methods.
 
 ## Worked example: termination is not a collection cutoff
@@ -61,10 +61,13 @@ survival environment is introduced by this comparison.
 
 ## Questions the evidence leaves open
 
-Experiment 8 supports testing **total stock plus the bit `A>B`** on the same saved
-histories: can a small amount of decision-relevant information recover value?
-It separates the illustrative states but still merges others, so Markov
-sufficiency would remain an empirical and structural question. This has not run.
+Experiment 8 motivated **total stock plus the bit `A>B`** on the same saved
+histories. [Experiment 9](one_bit_observation.md) now finds that this fixed,
+hand-designed bit recovers 85.2% of the mean model-history value gap and greatly
+reduces return prediction error. It still merges `(3,3)` and `(2,4)`, which have
+different transition laws and optimal actions. The next question is whether a
+short observation/action history can resolve that remaining ambiguity; it has
+not been tested. These reused-history results are not an independent replication.
 
 Other unresolved questions include learning useful memory from observation
 histories, collecting experience while the agent itself has incomplete
